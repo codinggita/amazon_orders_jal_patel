@@ -12,6 +12,7 @@
 "use strict";
 
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 // Sub-schema for addresses (embedded document)
 const addressSchema = new mongoose.Schema({
@@ -76,6 +77,36 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // Automatically adds createdAt and updatedAt
   }
 );
+
+// ─────────────────────────────────────────────────────────────
+// PRE-SAVE HOOK (Password Hashing)
+// ─────────────────────────────────────────────────────────────
+// Runs before a user document is saved to the DB.
+userSchema.pre("save", async function (next) {
+  // Only run this function if password was actually modified.
+  // Prevents re-hashing an already hashed password on profile updates.
+  if (!this.isModified("password")) return next();
+
+  // Hash the password with a salt round of 12
+  // Higher = more secure, but slower. 12 is a solid modern default.
+  this.password = await bcrypt.hash(this.password, 12);
+  
+  next();
+});
+
+// ─────────────────────────────────────────────────────────────
+// INSTANCE METHODS
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Compare an unhashed password from the user with the hashed DB password.
+ * @param {string} candidatePassword - Password input by the user attempting to log in.
+ * @returns {Promise<boolean>} True if passwords match.
+ */
+userSchema.methods.matchPassword = async function (candidatePassword) {
+  // this.password is available here because we will explicitly select('+password') during login
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 // Virtual for full name (computed property, not stored in DB)
 userSchema.virtual("fullName").get(function () {
