@@ -13,6 +13,7 @@
 
 const Order = require("../models/Order");
 const ApiError = require("../utils/ApiError");
+const QueryBuilder = require("../utils/QueryBuilder");
 
 /**
  * Creates a new order.
@@ -26,29 +27,30 @@ const createOrder = async (orderBody) => {
 };
 
 /**
- * Retrieves all orders, with pagination.
- * @param {Object} filters - Mongoose query filters (e.g., { status: 'pending' })
- * @param {Object} options - Options containing limit, page, sortBy, etc.
+ * Retrieves all orders, with advanced filtering, sorting, and pagination.
+ * @param {Object} query - The raw req.query object from Express.
  * @returns {Promise<Object>} Paginated result { results, page, limit, totalPages, totalResults }
  */
-const queryOrders = async (filters, options) => {
-  const page = options.page && parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
-  const limit = options.limit && parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
-  const skip = (page - 1) * limit;
+const queryOrders = async (query) => {
+  // 1. Initialize the QueryBuilder with Order.find() and the req.query object.
+  //    Pass the fields we want to enable regex searching on (e.g., 'status').
+  const builder = new QueryBuilder(Order.find().populate("user", "firstName lastName email"), query)
+    .filter()
+    .search(["status"]) // We can search by status, e.g., ?search=ship
+    .sort()
+    .limitFields()
+    .paginate();
 
-  // Allows sorting via query strings e.g. sortBy=totalPrice:desc
-  let sort = {};
-  if (options.sortBy) {
-    const parts = options.sortBy.split(":");
-    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
-  } else {
-    sort = { createdAt: -1 }; // Default sort by newest
-  }
+  // 2. Execute the query
+  const orders = await builder.mongooseQuery;
 
-  const ordersPromise = Order.find(filters).sort(sort).skip(skip).limit(limit).populate("user", "firstName lastName email");
-  const countPromise = Order.countDocuments(filters);
+  // 3. Count total documents matching the filter (for pagination metadata).
+  //    We must create a NEW query instance for counting, stripped of skip/limit.
+  const countBuilder = new QueryBuilder(Order.find(), query).filter().search(["status"]);
+  const totalResults = await countBuilder.mongooseQuery.countDocuments();
 
-  const [orders, totalResults] = await Promise.all([ordersPromise, countPromise]);
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 10;
   const totalPages = Math.ceil(totalResults / limit);
 
   return {

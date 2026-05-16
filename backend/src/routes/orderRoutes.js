@@ -19,7 +19,7 @@ const router = express.Router();
 router
   .route("/")
   .post(validate(orderValidator.createOrder), orderController.createOrder)
-  .get(orderController.getOrders); // Optional: add validate(orderValidator.getOrders) for query params
+  .get(validate(orderValidator.getOrders), orderController.getOrders);
 
 // Maps to /api/v1/orders/:id
 router

@@ -47,6 +47,19 @@ const getOrder = {
   }),
 };
 
+// Validate that query parameters (if provided) match expected types.
+// We allow 'unknown(true)' because QueryBuilder can handle arbitrary field filters.
+const getOrders = {
+  query: Joi.object().keys({
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1).max(100),
+    sort: Joi.string(),
+    fields: Joi.string(),
+    search: Joi.string(),
+    // For range queries like ?totalPrice[gte]=100
+  }).unknown(true),
+};
+
 const updateOrder = {
   params: Joi.object().keys({
     id: objectId.required(),
@@ -67,6 +80,7 @@ const deleteOrder = {
 module.exports = {
   createOrder,
   getOrder,
+  getOrders,
   updateOrder,
   deleteOrder,
 };
