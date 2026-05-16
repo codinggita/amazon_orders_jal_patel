@@ -28,25 +28,14 @@ const createOrder = catchAsync(async (req, res) => {
 });
 
 /**
- * @desc    Get all orders (with pagination and sorting)
+ * @desc    Get all orders (with advanced search, filter, sort, pagination)
  * @route   GET /api/v1/orders
  * @access  Private/Admin
  */
 const getOrders = catchAsync(async (req, res) => {
-  // Extract pagination/sorting options from query params
-  const options = {
-    page: req.query.page,
-    limit: req.query.limit,
-    sortBy: req.query.sortBy,
-  };
-  
-  // Extract filters (excluding the options above)
-  const filters = { ...req.query };
-  delete filters.page;
-  delete filters.limit;
-  delete filters.sortBy;
-
-  const result = await orderService.queryOrders(filters, options);
+  // We simply pass the entire req.query object to the service.
+  // The QueryBuilder handles extracting what it needs.
+  const result = await orderService.queryOrders(req.query);
   sendSuccess(res, 200, "Orders retrieved successfully", result);
 });
 
