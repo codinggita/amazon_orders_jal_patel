@@ -12,20 +12,24 @@ const express = require("express");
 const orderController = require("../controllers/orderController");
 const validate = require("../middlewares/validate");
 const orderValidator = require("../validators/orderValidator");
+const { protect, restrictTo } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
+
+// ALL order routes require the user to be logged in
+router.use(protect);
 
 // Maps to /api/v1/orders
 router
   .route("/")
   .post(validate(orderValidator.createOrder), orderController.createOrder)
-  .get(validate(orderValidator.getOrders), orderController.getOrders);
+  .get(restrictTo("admin"), validate(orderValidator.getOrders), orderController.getOrders);
 
 // Maps to /api/v1/orders/:id
 router
   .route("/:id")
   .get(validate(orderValidator.getOrder), orderController.getOrder)
-  .patch(validate(orderValidator.updateOrder), orderController.updateOrder)
-  .delete(validate(orderValidator.deleteOrder), orderController.deleteOrder);
+  .patch(restrictTo("admin"), validate(orderValidator.updateOrder), orderController.updateOrder)
+  .delete(restrictTo("admin"), validate(orderValidator.deleteOrder), orderController.deleteOrder);
 
 module.exports = router;
