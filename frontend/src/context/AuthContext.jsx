@@ -28,7 +28,9 @@ export const AuthProvider = ({ children }) => {
         try {
           // Fetch current profile to validate the stored token
           const response = await axiosClient.get('/auth/profile');
-          const userData = response.data || response;
+          const responseBody = response.data || response;
+          // Standard wrapper unrolling: backend returns sendSuccess(res, 200, "...", { user })
+          const userData = responseBody.user || responseBody;
           setUser(userData);
           localStorage.setItem('amazon_orders_user', JSON.stringify(userData));
         } catch (error) {
