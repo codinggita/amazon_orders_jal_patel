@@ -13,6 +13,7 @@ const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Orders = lazy(() => import('../pages/Orders'));
 const OrderDetails = lazy(() => import('../pages/OrderDetails'));
 const Shipping = lazy(() => import('../pages/Shipping'));
+const Tracking = lazy(() => import('../pages/Tracking'));
 const Analytics = lazy(() => import('../pages/Analytics'));
 const BulkOperations = lazy(() => import('../pages/BulkOperations'));
 
@@ -80,6 +81,14 @@ export const router = createBrowserRouter([
             element: (
               <Suspense fallback={<SuspenseFallback />}>
                 <Shipping />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'shipping/tracking/:id',
+            element: (
+              <Suspense fallback={<SuspenseFallback />}>
+                <Tracking />
               </Suspense>
             ),
           },
