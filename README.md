@@ -11,7 +11,6 @@
 ## 2. Project Overview
 The **Amazon E-commerce Orders Management Backend** is an enterprise-grade, highly scalable RESTful API built on Node.js and MongoDB. It handles the complete lifecycle of e-commerce orders, mimicking the architectural complexity of modern logistics platforms like Amazon. It features advanced order processing, bulk operations, deep shipping logistics, native database aggregations for revenue tracking, and a zero-trust administrative security model.
 
-## 3. Project Objective
 The objective of this project is to construct a production-ready, highly optimized backend architecture capable of serving enterprise loads. It demonstrates a strict decoupling of business logic via a Service Layer architecture, advanced MongoDB optimizations (lean queries, compound indexing), and secure, centralized error and validation handling.
 
 ## 4. Features Overview
