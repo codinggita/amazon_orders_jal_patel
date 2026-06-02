@@ -93,10 +93,6 @@ The MongoDB database is optimized for both heavy read operations (dashboards) an
 - **Orders**: Embedded snapshots of purchased items, shipping addresses, monetary calculations, and historical state transitions.
 - **Shipments**: Carrier information, tracking IDs, delivery notes, and delivery checkpoint arrays.
 
-## 15. Relationships
-- **Order to User**: `1:N` Reference (`ObjectId`). Indexed for blazing fast "My Orders" retrieval.
-- **Order to Product**: `1:N` Embedded Snapshot. Products are copied into `orderItems` at checkout.
-- **Shipment to Order**: `1:1` Reference. Separated to keep Order documents lightweight during financial analytics.
 
 ## 16. Authentication Flow
 Authentication uses stateless JWTs. 
