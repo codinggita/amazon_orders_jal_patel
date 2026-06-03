@@ -11,7 +11,6 @@
 ## 2. Project Overview
 The **Amazon E-commerce Orders Management Backend** is an enterprise-grade, highly scalable RESTful API built on Node.js and MongoDB. It handles the complete lifecycle of e-commerce orders, mimicking the architectural complexity of modern logistics platforms like Amazon. It features advanced order processing, bulk operations, deep shipping logistics, native database aggregations for revenue tracking, and a zero-trust administrative security model.
 
-## 3. Project Objective
 The objective of this project is to construct a production-ready, highly optimized backend architecture capable of serving enterprise loads. It demonstrates a strict decoupling of business logic via a Service Layer architecture, advanced MongoDB optimizations (lean queries, compound indexing), and secure, centralized error and validation handling.
 
 ## 4. Features Overview
@@ -94,10 +93,6 @@ The MongoDB database is optimized for both heavy read operations (dashboards) an
 - **Orders**: Embedded snapshots of purchased items, shipping addresses, monetary calculations, and historical state transitions.
 - **Shipments**: Carrier information, tracking IDs, delivery notes, and delivery checkpoint arrays.
 
-## 15. Relationships
-- **Order to User**: `1:N` Reference (`ObjectId`). Indexed for blazing fast "My Orders" retrieval.
-- **Order to Product**: `1:N` Embedded Snapshot. Products are copied into `orderItems` at checkout.
-- **Shipment to Order**: `1:1` Reference. Separated to keep Order documents lightweight during financial analytics.
 
 ## 16. Authentication Flow
 Authentication uses stateless JWTs. 
@@ -233,49 +228,4 @@ Every endpoint guarantees a consistent standard response format:
 ## 38. Postman Testing
 Refer to the `API_DOCUMENTATION.md` file located in the `/backend` directory for instructions on setting up Postman Environments and dynamic pre-request scripts to automatically capture and append your Bearer token.
 
-## 39. Deployment Preparation
-The system features a multi-stage `Dockerfile`. 
-To deploy via Docker:
-```bash
-docker build -t amazon-orders-api .
-docker run -p 5000:5000 --env-file .env amazon-orders-api
-```
-The application handles internal graceful shutdown logic out-of-the-box (`SIGTERM`), ensuring active HTTP connections drain cleanly before the process exits during rolling deployments on AWS ECS, Google Cloud Run, or Kubernetes.
 
-## 40. GitHub Workflow
-Code is committed directly or via Pull Requests to the `main` branch. The repository maintains a clean linear history via rebase strategies.
-
-## 41. Branching Strategy
-- `main`: Represents the production-ready, stable deployable state.
-- `feature/*`: Short-lived branches for isolated development of API modules (e.g. `feature/bulk-operations`).
-
-## 42. Commit Message Convention
-Commits follow the conventional commits standard:
-- `feat(module):` New features.
-- `fix(module):` Bug fixes.
-- `chore(module):` Maintenance, configurations, or dependencies.
-- `refactor(module):` Optimization without behavior changes.
-
-## 43. Best Practices Followed
-- Separation of Concerns (MVC + Service Layer).
-- Fail-Fast configuration loading.
-- Centralized Error Handling.
-- Automated payload validation.
-- RESTful HTTP Verb and Status Code semantic compliance.
-
-## 44. Scalability Considerations
-The API is completely stateless, meaning session data is not stored in Node.js memory. This allows the backend to be horizontally scaled to an infinite number of parallel container instances behind a Load Balancer.
-
-## 45. Future Improvements
-- Implement Redis caching for heavily hit administrative analytical queries.
-- Migrate from simple audit files to a centralized logging system like ELK (Elasticsearch, Logstash, Kibana) or Datadog.
-- Implement Webhooks for asynchronous order event broadcasting.
-
-## 46. Learning Outcomes
-This architecture demonstrates advanced comprehension of enterprise Node.js environments, including memory optimization via query projection, bypassing document wrappers via `.lean()`, mitigating denial-of-service vectors via payload validation limits, and designing stateless containerized deployments.
-
-## 47. Author Section
-Architected and developed by **Jal Patel**.
-
-## 48. License Section
-This project is licensed under the ISC License.
