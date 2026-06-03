@@ -31,6 +31,7 @@ router
 router
   .route("/:id")
   .get(validate(orderValidator.getOrder), orderController.getOrder)
+  .put(restrictTo("admin"), validate(orderValidator.replaceOrder), orderController.replaceOrder)
   .patch(restrictTo("admin"), validate(orderValidator.updateOrder), orderController.updateOrder)
   .delete(restrictTo("admin"), validate(orderValidator.deleteOrder), orderController.deleteOrder);
 
