@@ -104,10 +104,26 @@ const deleteOrderById = async (orderId) => {
   return order;
 };
 
+/**
+ * Replaces an entire order document by ID.
+ * @param {string} orderId - The MongoDB ID of the order.
+ * @param {Object} replaceBody - The complete new order data.
+ * @returns {Promise<Object>} The replaced order document.
+ * @throws {ApiError} If the order is not found.
+ */
+const replaceOrderById = async (orderId, replaceBody) => {
+  const order = await Order.findOneAndReplace({ _id: orderId }, replaceBody, { new: true, runValidators: true }).populate("user", "firstName lastName email");
+  if (!order) {
+    throw new ApiError("Order not found", 404);
+  }
+  return order;
+};
+
 module.exports = {
   createOrder,
   queryOrders,
   getOrderById,
   updateOrderById,
+  replaceOrderById,
   deleteOrderById,
 };

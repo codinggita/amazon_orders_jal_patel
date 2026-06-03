@@ -70,10 +70,21 @@ const deleteOrder = catchAsync(async (req, res) => {
   sendSuccess(res, 200, "Order deleted successfully");
 });
 
+/**
+ * @desc    Replace entire order information
+ * @route   PUT /api/v1/orders/:id
+ * @access  Private/Admin
+ */
+const replaceOrder = catchAsync(async (req, res) => {
+  const order = await orderService.replaceOrderById(req.params.id, req.body);
+  sendSuccess(res, 200, "Order replaced successfully", order);
+});
+
 module.exports = {
   createOrder,
   getOrders,
   getOrder,
   updateOrder,
+  replaceOrder,
   deleteOrder,
 };

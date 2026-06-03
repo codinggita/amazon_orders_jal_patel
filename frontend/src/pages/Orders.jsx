@@ -19,7 +19,7 @@ import {
 
 const Orders = () => {
   useDocumentTitle('Orders Management');
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // We check isAdmin strictly since backend blocks non-admins

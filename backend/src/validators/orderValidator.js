@@ -77,10 +77,46 @@ const deleteOrder = {
   }),
 };
 
+const replaceOrder = {
+  params: Joi.object().keys({
+    id: objectId.required(),
+  }),
+  body: Joi.object().keys({
+    user: objectId.required(),
+    orderItems: Joi.array()
+      .items(
+        Joi.object().keys({
+          product: objectId.required(),
+          name: Joi.string().required(),
+          price: Joi.number().min(0).required(),
+          quantity: Joi.number().integer().min(1).required(),
+          image: Joi.string().optional(),
+        })
+      )
+      .min(1)
+      .required(),
+    shippingAddress: Joi.object()
+      .keys({
+        street: Joi.string().required(),
+        city: Joi.string().required(),
+        state: Joi.string().required(),
+        postalCode: Joi.string().required(),
+        country: Joi.string().required(),
+      })
+      .required(),
+    itemsPrice: Joi.number().min(0).required(),
+    taxPrice: Joi.number().min(0).required(),
+    shippingPrice: Joi.number().min(0).required(),
+    totalPrice: Joi.number().min(0).required(),
+    status: Joi.string().valid("pending", "processing", "shipped", "delivered", "cancelled").optional(),
+  }),
+};
+
 module.exports = {
   createOrder,
   getOrder,
   getOrders,
   updateOrder,
+  replaceOrder,
   deleteOrder,
 };
