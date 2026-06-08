@@ -21,3 +21,6 @@ logs/
 # ── Build Artifacts ───────────────────────────────────────────
 dist/
 build/
+
+
+Amazon_Orders_API.postman_collection.json

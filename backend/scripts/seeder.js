@@ -21,10 +21,7 @@ const User = require("../src/models/User");
 const Order = require("../src/models/Order");
 
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected for Seeding"))
   .catch((err) => {
     console.error("❌ MongoDB Connection Error:", err);
@@ -36,15 +33,15 @@ const users = [
   {
     firstName: "Admin",
     lastName: "User",
-    email: "admin@amazon.com",
-    password: "Password123!",
+    email: "admin@example.com",
+    password: "Admin123@",
     role: "admin",
   },
   {
-    firstName: "John",
-    lastName: "Customer",
-    email: "john@example.com",
-    password: "Password123!",
+    firstName: "Test",
+    lastName: "User",
+    email: "user@example.com",
+    password: "User123@",
     role: "customer",
   },
 ];
@@ -57,6 +54,18 @@ const importData = async () => {
 
     // Create Users
     const createdUsers = await User.create(users);
+    console.log(`👤 Seeded ${createdUsers.length} users successfully.`);
+
+    // Verify Password Hashing
+    const bcrypt = require("bcryptjs");
+    console.log("🛡️  Verifying password hashes in DB...");
+    for (const seededUser of createdUsers) {
+      const dbUser = await User.findById(seededUser._id).select("+password");
+      const originalPreset = users.find((u) => u.email === dbUser.email);
+      const isMatch = await bcrypt.compare(originalPreset.password, dbUser.password);
+      console.log(`   - [${dbUser.email}]: ${isMatch ? "✅ Verified" : "❌ Failed Verification"}`);
+    }
+
     const customer = createdUsers[1];
 
     // Create dummy order

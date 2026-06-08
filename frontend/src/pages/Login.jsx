@@ -152,7 +152,7 @@ const Login = () => {
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
-                onClick={() => fillCredentials('admin@amazon.com', 'Password123!')}
+                onClick={() => fillCredentials('admin@example.com', 'Admin123@')}
                 className="bg-slate-900 hover:bg-slate-850 border border-slate-800/80 rounded-xl p-2.5 text-left text-[10px] transition-all cursor-pointer group"
               >
                 <p className="font-bold text-slate-300 group-hover:text-amazon-orange">Admin Account</p>
@@ -160,7 +160,7 @@ const Login = () => {
               </button>
               <button
                 type="button"
-                onClick={() => fillCredentials('john@example.com', 'Password123!')}
+                onClick={() => fillCredentials('user@example.com', 'User123@')}
                 className="bg-slate-900 hover:bg-slate-850 border border-slate-800/80 rounded-xl p-2.5 text-left text-[10px] transition-all cursor-pointer group"
               >
                 <p className="font-bold text-slate-300 group-hover:text-amazon-orange">Customer Account</p>

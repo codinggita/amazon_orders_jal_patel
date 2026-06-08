@@ -1,8 +1,15 @@
 # Amazon Orders API — Postman Configuration Guide
 
-This document details how to configure Postman to test the backend locally and in production.
+We have created a ready-to-import Postman Collection file for you: [Amazon_Orders_API.postman_collection.json](file:///c:/Users/HP/OneDrive/Desktop/amazon_orders/amazon_orders_jal_patel/backend/Amazon_Orders_API.postman_collection.json).
 
-## 1. Environment Variables
+## 0. Quick Import Instructions
+1. Open **Postman**.
+2. Click the **Import** button in the top-left corner.
+3. Drag & drop or select the [Amazon_Orders_API.postman_collection.json](file:///c:/Users/HP/OneDrive/Desktop/amazon_orders/amazon_orders_jal_patel/backend/Amazon_Orders_API.postman_collection.json) file.
+4. Click **Import**. All folders (Health, Auth, Orders, Bulk, Shipping, Admin) and all endpoints are pre-written and ready to use!
+
+## 1. Collection Variables
+The collection contains default variables configured at the root. You do not need to create a separate environment unless desired:
 Create a new Environment in Postman named `Amazon Local` and add the following variables:
 - `URL`: `http://localhost:5000/api/v1`
 - `TOKEN`: (Leave blank, will be set automatically via auth script)

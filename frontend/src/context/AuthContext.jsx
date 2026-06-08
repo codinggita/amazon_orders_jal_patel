@@ -93,10 +93,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (nameOrData, email, password, role) => {
     setIsLoading(true);
     try {
-      const response = await axiosClient.post('/auth/register', { name, email, password });
+      let payload;
+      if (typeof nameOrData === 'object' && nameOrData !== null) {
+        payload = nameOrData;
+      } else {
+        payload = { name: nameOrData, email, password, role };
+      }
+      const response = await axiosClient.post('/auth/register', payload);
       setIsLoading(false);
       return response.data || response;
     } catch (error) {
