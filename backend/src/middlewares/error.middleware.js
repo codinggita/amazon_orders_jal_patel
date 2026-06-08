@@ -6,18 +6,15 @@
  */
 
 const config = require("../config/env");
-const ApiError = require("./ApiError"); // Assuming ApiError is also in utils or similar. Wait, it's in utils, not middlewares. Let's fix path.
-
-// Correction: path to ApiError
-const ApiErrorClass = require("../utils/ApiError");
+const ApiError = require("../utils/ApiError");
 
 const handleCastError = (err) =>
-  new ApiErrorClass(`Invalid value for field: ${err.path}`, 400);
+  new ApiError(`Invalid value for field: ${err.path}`, 400);
 
 const handleDuplicateKeyError = (err) => {
   const field = Object.keys(err.keyValue)[0];
   const value = err.keyValue[field];
-  return new ApiErrorClass(
+  return new ApiError(
     `Duplicate value "${value}" for field "${field}". Please use another value.`,
     409
   );
@@ -25,7 +22,7 @@ const handleDuplicateKeyError = (err) => {
 
 const handleValidationError = (err) => {
   const messages = Object.values(err.errors).map((e) => e.message);
-  return new ApiErrorClass(`Validation failed: ${messages.join(". ")}`, 422);
+  return new ApiError(`Validation failed: ${messages.join(". ")}`, 422);
 };
 
 const sendDevError = (err, res) => {

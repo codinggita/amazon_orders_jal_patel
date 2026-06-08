@@ -38,6 +38,7 @@ const authRoutes = require("./routes/authRoutes");
 const shippingRoutes = require("./routes/shippingRoutes"); // Phase 7
 const adminRoutes = require("./routes/adminRoutes"); // Phase 8
 const orderBulkRoutes = require("./routes/orderBulkRoutes"); // Phase 9
+const searchRoutes = require("./routes/search.routes");    // Phase 10 — Search
 // Future routes will be imported here:
 // const productRoutes = require('./routes/productRoutes');
 
@@ -104,11 +105,12 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 const API_PREFIX = "/api/v1";
 
 app.use(`${API_PREFIX}/health`, healthRoutes);
-app.use(`${API_PREFIX}/orders/bulk`, orderBulkRoutes); // Phase 9 — MUST be before /orders
+app.use(`${API_PREFIX}/orders/bulk`, orderBulkRoutes);          // Phase 9  — MUST be before /orders
+app.use(`${API_PREFIX}/orders/search`, searchRoutes);           // Phase 10 — MUST be before /orders
 app.use(`${API_PREFIX}/orders`, orderRoutes);
 app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/shipping`, shippingRoutes); // Phase 7 — Shipping & Delivery
-app.use(`${API_PREFIX}/admin`, adminRoutes); // Phase 8 — Administrative Operations
+app.use(`${API_PREFIX}/shipping`, shippingRoutes);              // Phase 7  — Shipping & Delivery
+app.use(`${API_PREFIX}/admin`, adminRoutes);                    // Phase 8  — Administrative Operations
 
 // Future routes:
 // app.use(`${API_PREFIX}/products`, productRoutes);
