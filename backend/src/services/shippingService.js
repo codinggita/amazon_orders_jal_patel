@@ -27,7 +27,7 @@
 "use strict";
 
 const Shipment = require("../models/Shipment");
-const Order = require("../models/Order");
+const Order = require("../models/order.model");
 const ApiError = require("../utils/ApiError");
 const {
   generateTrackingNumber,

@@ -29,11 +29,11 @@ const config = require("./config/env");
 
 // ── Middleware imports ────────────────────────────────────────
 const notFound = require("./middlewares/notFound");
-const globalErrorHandler = require("./middlewares/errorHandler");
+const globalErrorHandler = require("./middlewares/error.middleware");
 
 // ── Route imports ─────────────────────────────────────────────
 const healthRoutes = require("./routes/healthRoutes");
-const orderRoutes = require("./routes/orderRoutes");
+const orderRoutes = require("./routes/order.routes");
 const authRoutes = require("./routes/authRoutes");
 const shippingRoutes = require("./routes/shippingRoutes"); // Phase 7
 const adminRoutes = require("./routes/adminRoutes"); // Phase 8

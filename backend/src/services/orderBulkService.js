@@ -22,7 +22,7 @@
 
 "use strict";
 
-const Order = require("../models/Order");
+const Order = require("../models/order.model");
 const ApiError = require("../utils/ApiError");
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,14 +1,21 @@
-/**
- * @file orderValidator.js
- * @description Joi validation schemas for Order APIs.
- */
-
 "use strict";
+
+/**
+ * @file order.validator.js
+ * @description Joi validation schemas for all Order APIs.
+ */
 
 const Joi = require("joi");
 
-// Helper to validate MongoDB ObjectIds
-const objectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/).message("Invalid ID format");
+const objectId = Joi.string()
+  .regex(/^[0-9a-fA-F]{24}$/)
+  .message("Invalid ID format. Must be a 24-character hex string.");
+
+const orderIdParam = {
+  params: Joi.object().keys({
+    orderId: objectId.required(),
+  }),
+};
 
 const createOrder = {
   body: Joi.object().keys({
@@ -43,12 +50,10 @@ const createOrder = {
 
 const getOrder = {
   params: Joi.object().keys({
-    id: objectId.required(),
+    orderId: objectId.required(),
   }),
 };
 
-// Validate that query parameters (if provided) match expected types.
-// We allow 'unknown(true)' because QueryBuilder can handle arbitrary field filters.
 const getOrders = {
   query: Joi.object().keys({
     page: Joi.number().integer().min(1),
@@ -56,30 +61,29 @@ const getOrders = {
     sort: Joi.string(),
     fields: Joi.string(),
     search: Joi.string(),
-    // For range queries like ?totalPrice[gte]=100
   }).unknown(true),
 };
 
 const updateOrder = {
   params: Joi.object().keys({
-    id: objectId.required(),
+    orderId: objectId.required(),
   }),
   body: Joi.object()
     .keys({
       status: Joi.string().valid("pending", "processing", "shipped", "delivered", "cancelled"),
     })
-    .min(1), // Require at least one field to be updated
+    .min(1),
 };
 
 const deleteOrder = {
   params: Joi.object().keys({
-    id: objectId.required(),
+    orderId: objectId.required(),
   }),
 };
 
 const replaceOrder = {
   params: Joi.object().keys({
-    id: objectId.required(),
+    orderId: objectId.required(),
   }),
   body: Joi.object().keys({
     user: objectId.required(),
@@ -112,6 +116,34 @@ const replaceOrder = {
   }),
 };
 
+const checkOrderExists = orderIdParam;
+const getOrderSummary = orderIdParam;
+const getOrderItems = orderIdParam;
+const getOrderHistory = orderIdParam;
+const archiveOrder = orderIdParam;
+const restoreOrder = orderIdParam;
+
+const cancelOrder = {
+  params: Joi.object().keys({
+    orderId: objectId.required(),
+  }),
+  body: Joi.object().keys({
+    cancelReason: Joi.string()
+      .trim()
+      .min(5)
+      .max(500)
+      .required()
+      .messages({
+        "string.min": "Cancellation reason must be at least 5 characters.",
+        "string.max": "Cancellation reason must not exceed 500 characters.",
+        "any.required": "A cancellation reason is required.",
+      }),
+  }),
+};
+
+const duplicateOrder = orderIdParam;
+const getOrderInvoice = orderIdParam;
+
 module.exports = {
   createOrder,
   getOrder,
@@ -119,4 +151,13 @@ module.exports = {
   updateOrder,
   replaceOrder,
   deleteOrder,
+  checkOrderExists,
+  getOrderSummary,
+  getOrderItems,
+  getOrderHistory,
+  archiveOrder,
+  restoreOrder,
+  cancelOrder,
+  duplicateOrder,
+  getOrderInvoice,
 };
