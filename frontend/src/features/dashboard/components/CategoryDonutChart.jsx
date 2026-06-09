@@ -17,8 +17,8 @@ export function CategoryDonutChart({ data }) {
         <h3 className="text-lg font-semibold text-slate-100">Sales by Category</h3>
         <p className="text-sm text-slate-400">Distribution of orders</p>
       </div>
-      <div className="flex-1 min-h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex-1 min-h-[300px] w-full">
+        <ResponsiveContainer width="99%" height="100%" minHeight={300}>
           <PieChart>
             <Pie
               data={data}

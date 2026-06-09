@@ -1,12 +1,26 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import Dashboard from '../pages/Dashboard';
 import NotFound from '../pages/NotFound';
+import Login from '../pages/Login';
+import Orders from '../pages/Orders';
+import Shipping from '../pages/Shipping';
+import Analytics from '../pages/Analytics';
+import Users from '../pages/Users';
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <Login />,
+  },
+  {
     path: '/',
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <NotFound />,
     children: [
       {
@@ -15,19 +29,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'orders',
-        element: <div className="p-4">Orders Page (Coming Soon)</div>,
+        element: <Orders />,
       },
       {
         path: 'shipping',
-        element: <div className="p-4">Shipping Page (Coming Soon)</div>,
+        element: <Shipping />,
       },
       {
         path: 'analytics',
-        element: <div className="p-4">Analytics Page (Coming Soon)</div>,
+        element: <Analytics />,
       },
       {
         path: 'users',
-        element: <div className="p-4">Users Page (Coming Soon)</div>,
+        element: <Users />,
       },
       {
         path: 'admin',

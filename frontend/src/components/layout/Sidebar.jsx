@@ -16,6 +16,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
+import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
 const navGroups = [
@@ -53,6 +54,7 @@ const navGroups = [
 
 export function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useStore();
+  const { logout } = useAuth();
 
   return (
     <motion.aside
@@ -84,7 +86,7 @@ export function Sidebar() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto py-4 custom-scrollbar">
         {navGroups.map((group, index) => (
           <div key={index} className="mb-6">
             {isSidebarOpen && (
@@ -136,7 +138,10 @@ export function Sidebar() {
             </NavLink>
           </li>
           <li>
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+            <button 
+              onClick={() => logout()}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            >
               <LogOut className="w-5 h-5 shrink-0" />
               {isSidebarOpen && <span className="font-medium">Logout</span>}
             </button>
