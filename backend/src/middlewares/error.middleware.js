@@ -25,6 +25,20 @@ const handleValidationError = (err) => {
   return new ApiError(`Validation failed: ${messages.join(". ")}`, 422);
 };
 
+/**
+ * Handles JWT signature/format errors (malformed token).
+ * e.g. JsonWebTokenError from jsonwebtoken package.
+ */
+const handleJWTError = () =>
+  new ApiError("Invalid token. Please log in again.", 401);
+
+/**
+ * Handles expired JWT tokens.
+ * e.g. TokenExpiredError from jsonwebtoken package.
+ */
+const handleJWTExpiredError = () =>
+  new ApiError("Your session has expired. Please log in again.", 401);
+
 const sendDevError = (err, res) => {
   res.status(err.statusCode || 500).json({
     success: false,
@@ -55,15 +69,17 @@ const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
+  let error = { ...err, message: err.message };
+
+  if (err.name === "CastError") error = handleCastError(error);
+  if (err.code === 11000) error = handleDuplicateKeyError(error);
+  if (err.name === "ValidationError") error = handleValidationError(error);
+  if (err.name === "JsonWebTokenError") error = handleJWTError();
+  if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
+
   if (config.isDev) {
-    sendDevError(err, res);
+    sendDevError(error, res);
   } else {
-    let error = { ...err, message: err.message };
-
-    if (err.name === "CastError") error = handleCastError(error);
-    if (err.code === 11000) error = handleDuplicateKeyError(error);
-    if (err.name === "ValidationError") error = handleValidationError(error);
-
     sendProdError(error, res);
   }
 };

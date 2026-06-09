@@ -181,12 +181,18 @@ const updateShipmentStatus = async (orderId, newStatus, location, description) =
 
   await shipment.save();
 
-  // If caller provided custom location/description, patch the last event
+  // If caller provided custom location/description, patch the last tracking event
+  // WITHOUT calling save() again (which would re-trigger the pre-save hook and
+  // add a duplicate event). Use a targeted $set on the specific array index instead.
   if ((location || description) && shipment.trackingEvents.length > 0) {
-    const lastEvent = shipment.trackingEvents[shipment.trackingEvents.length - 1];
-    if (location) lastEvent.location = location;
-    if (description) lastEvent.description = description;
-    await shipment.save();
+    const lastIdx = shipment.trackingEvents.length - 1;
+    const setFields = {};
+    if (location)    setFields[`trackingEvents.${lastIdx}.location`]    = location;
+    if (description) setFields[`trackingEvents.${lastIdx}.description`] = description;
+    await shipment.constructor.updateOne({ _id: shipment._id }, { $set: setFields });
+    // Keep the in-memory document consistent
+    if (location)    shipment.trackingEvents[lastIdx].location    = location;
+    if (description) shipment.trackingEvents[lastIdx].description = description;
   }
 
   return shipment;

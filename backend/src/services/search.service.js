@@ -3,7 +3,6 @@
 
 
 const Order = require("../models/order.model");
-const ApiError = require("../utils/ApiError");
 const {
   buildRegex,
   buildFuzzyRegex,
@@ -28,17 +27,15 @@ const runSearch = async (filter, { page, limit, skip }, projection = {}) => {
     Order.countDocuments(filter),
   ]);
 
-  if (total === 0) {
-    throw new ApiError("No results found for the given query.", 404);
-  }
-
+  // NOTE: Zero results is a valid outcome — return empty array with 200, NOT a 404.
+  // Throwing ApiError here was causing legitimate "no results" searches to fail.
   return {
     results,
     pagination: {
       total,
       page,
       limit,
-      pages: Math.ceil(total / limit),
+      pages: total === 0 ? 0 : Math.ceil(total / limit),
     },
   };
 };
@@ -386,8 +383,12 @@ const highlightSearch = async (query) => {
     Order.countDocuments(filter),
   ]);
 
+  // NOTE: Zero results is valid — return empty array with 200.
   if (total === 0) {
-    throw new ApiError("No results found for the given query.", 404);
+    return {
+      results: [],
+      pagination: { total: 0, page, limit, pages: 0 },
+    };
   }
 
   // Attach _highlight metadata to each document

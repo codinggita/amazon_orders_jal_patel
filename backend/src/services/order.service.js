@@ -233,13 +233,28 @@ const cancelOrder = async (orderId, reason, actorEmail = "system") => {
   order.cancelledAt = new Date();
   order.cancelReason = reason;
 
+  // NOTE: The pre-save hook (order.model.js) automatically pushes a statusHistory
+  // entry when order.status is modified. We save ONCE here so the hook runs ONCE.
+  // We then back-patch the just-added entry with actorEmail + note before the
+  // document reaches the DB — using a direct $push update to avoid a second save.
   await order.save();
 
-  const lastEntry = order.statusHistory[order.statusHistory.length - 1];
-  if (lastEntry && lastEntry.status === "cancelled") {
-    lastEntry.changedBy = actorEmail;
-    lastEntry.note = `Cancelled: ${reason}`;
-    await order.save();
+  // Back-patch the last entry's changedBy and note without triggering the hook again.
+  // We use updateOne with $set on the last array element by index.
+  const lastIndex = order.statusHistory.length - 1;
+  if (lastIndex >= 0 && order.statusHistory[lastIndex].status === "cancelled") {
+    await order.constructor.updateOne(
+      { _id: order._id },
+      {
+        $set: {
+          [`statusHistory.${lastIndex}.changedBy`]: actorEmail,
+          [`statusHistory.${lastIndex}.note`]: `Cancelled: ${reason}`,
+        },
+      }
+    );
+    // Keep the in-memory document consistent
+    order.statusHistory[lastIndex].changedBy = actorEmail;
+    order.statusHistory[lastIndex].note = `Cancelled: ${reason}`;
   }
 
   return order;

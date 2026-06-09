@@ -27,7 +27,7 @@
 "use strict";
 
 const catchAsync = require("../utils/catchAsync");
-const { sendSuccess } = require("../utils/ApiResponse");
+const { sendSuccess } = require("../utils/apiResponse");
 const adminService = require("../services/adminService");
 
 /**

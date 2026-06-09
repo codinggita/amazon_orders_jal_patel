@@ -71,8 +71,21 @@ const updateOrder = {
   body: Joi.object()
     .keys({
       status: Joi.string().valid("pending", "processing", "shipped", "delivered", "cancelled"),
+      shippingAddress: Joi.object()
+        .keys({
+          street: Joi.string(),
+          city: Joi.string(),
+          state: Joi.string(),
+          postalCode: Joi.string(),
+          country: Joi.string(),
+        }),
+      itemsPrice: Joi.number().min(0),
+      taxPrice: Joi.number().min(0),
+      shippingPrice: Joi.number().min(0),
+      totalPrice: Joi.number().min(0),
+      cancelReason: Joi.string().trim().min(5).max(500),
     })
-    .min(1),
+    .min(1), // Require at least one field on a PATCH request
 };
 
 const deleteOrder = {
