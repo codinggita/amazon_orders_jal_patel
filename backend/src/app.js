@@ -43,6 +43,12 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const orderFilterRoutes = require("./routes/orderFilterRoutes");
 const orderSortRoutes = require("./routes/orderSortRoutes");
 const orderPaginationRoutes = require("./routes/orderPaginationRoutes");
+const systemRoutes = require("./routes/systemRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+const trendingRoutes = require("./routes/trendingRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 
 // Future routes will be imported here:
 // const productRoutes = require('./routes/productRoutes');
@@ -120,6 +126,12 @@ app.use(`${API_PREFIX}/orders`, orderRoutes);
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/shipping`, shippingRoutes);              // Phase 7  — Shipping & Delivery
 app.use(`${API_PREFIX}/admin`, adminRoutes);                    // Phase 8  — Administrative Operations
+app.use(`${API_PREFIX}/system`, systemRoutes);                   // Phase 11 — System Diagnostics
+app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);             // Phase 12 — Dashboard Analytics
+app.use(`${API_PREFIX}/notifications`, notificationRoutes);      // Phase 13 — Notifications
+app.use(`${API_PREFIX}/recommendations`, recommendationRoutes);  // Phase 14 — Recommendations
+app.use(`${API_PREFIX}/trending`, trendingRoutes);               // Phase 15 — Trending
+app.use(`${API_PREFIX}/activity`, activityRoutes);              // Phase 16 — Activity Logs
 
 // Future routes:
 // app.use(`${API_PREFIX}/products`, productRoutes);
