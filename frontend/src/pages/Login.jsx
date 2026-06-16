@@ -13,13 +13,13 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Determine redirection route (default is /dashboard)
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Determine redirection route (default is /)
+  const from = location.state?.from?.pathname || '/';
 
   // If already logged in, redirect away proactively
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

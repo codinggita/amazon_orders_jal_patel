@@ -5,9 +5,17 @@ import Dashboard from '../pages/Dashboard';
 import NotFound from '../pages/NotFound';
 import Login from '../pages/Login';
 import Orders from '../pages/Orders';
+import OrderDetails from '../pages/OrderDetails';
 import Shipping from '../pages/Shipping';
+import Tracking from '../pages/Tracking';
 import Analytics from '../pages/Analytics';
 import Users from '../pages/Users';
+import Admin from '../pages/Admin';
+import Notifications from '../pages/Notifications';
+import ActivityLogs from '../pages/ActivityLogs';
+import SystemHealth from '../pages/SystemHealth';
+import Settings from '../pages/Settings';
+import BulkOperations from '../pages/BulkOperations';
 
 export const router = createBrowserRouter([
   {
@@ -32,8 +40,16 @@ export const router = createBrowserRouter([
         element: <Orders />,
       },
       {
+        path: 'orders/:id',
+        element: <OrderDetails />,
+      },
+      {
         path: 'shipping',
         element: <Shipping />,
+      },
+      {
+        path: 'shipping/tracking/:id',
+        element: <Tracking />,
       },
       {
         path: 'analytics',
@@ -45,23 +61,27 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin',
-        element: <div className="p-4">Admin Page (Coming Soon)</div>,
+        element: <Admin />,
+      },
+      {
+        path: 'admin/bulk-operations',
+        element: <BulkOperations />,
       },
       {
         path: 'notifications',
-        element: <div className="p-4">Notifications Page (Coming Soon)</div>,
+        element: <Notifications />,
       },
       {
         path: 'logs',
-        element: <div className="p-4">Activity Logs Page (Coming Soon)</div>,
+        element: <ActivityLogs />,
       },
       {
         path: 'health',
-        element: <div className="p-4">System Health Page (Coming Soon)</div>,
+        element: <SystemHealth />,
       },
       {
         path: 'settings',
-        element: <div className="p-4">Settings Page (Coming Soon)</div>,
+        element: <Settings />,
       },
       {
         path: '*',
