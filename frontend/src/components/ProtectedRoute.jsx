@@ -43,7 +43,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
             Your current account type (<span className="text-amazon-orange font-semibold uppercase text-xs">{user?.role}</span>) does not possess permission to view this administrative board.
           </p>
           <button
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => window.location.href = '/'}
             className="w-full bg-slate-800 hover:bg-slate-700 text-slate-100 text-sm font-medium py-3 px-4 rounded-xl border border-slate-700 hover:border-slate-600 transition-all cursor-pointer"
           >
             Return to Dashboard

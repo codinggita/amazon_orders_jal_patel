@@ -47,7 +47,8 @@ const navGroups = [
     items: [
       { title: 'Notifications', icon: Bell, href: '/notifications' },
       { title: 'Activity Logs', icon: Activity, href: '/logs' },
-      { title: 'System Health', icon: ServerCrash, href: '/health' }
+      { title: 'System Health', icon: ServerCrash, href: '/health' },
+      { title: 'Settings', icon: Settings, href: '/settings' }
     ]
   }
 ];
