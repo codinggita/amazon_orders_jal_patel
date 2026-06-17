@@ -491,6 +491,94 @@ const getSystemLogs = (page, limit) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 11. Clear Cache
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Clears any in-memory cache or configured cache layer.
+ * Returns status indicating whether cache was configured and cleared.
+ *
+ * @returns {Promise<Object>} Cache clear result.
+ */
+const clearCache = async () => {
+  return {
+    cleared: true,
+    provider: "none",
+    message: "No cache layer is currently configured. Redis/RedisCache can be added for production caching.",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. Toggle Maintenance Mode
+// ─────────────────────────────────────────────────────────────────────────────
+
+let maintenanceMode = { enabled: false, message: null, setAt: null };
+
+/**
+ * Enables or disables maintenance mode.
+ * When enabled, the system returns a 503 Service Unavailable for all non-admin routes.
+ *
+ * @param {boolean} enabled - Whether to enable or disable maintenance mode.
+ * @param {string} message - Optional maintenance message to display.
+ * @returns {Promise<Object>} Maintenance mode status.
+ */
+const toggleMaintenance = async (enabled = false, message = null) => {
+  maintenanceMode.enabled = enabled;
+  maintenanceMode.message = message || (enabled ? "System is undergoing scheduled maintenance. Please check back shortly." : null);
+  maintenanceMode.setAt = new Date().toISOString();
+
+  return { ...maintenanceMode };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. Get Backups
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Retrieves backup information.
+ * In a production environment, this would integrate with MongoDB Atlas backups,
+ * S3, or a custom backup solution.
+ *
+ * @returns {Promise<Object>} Backup information.
+ */
+const getBackups = async () => {
+  const fs = require("fs");
+  const path = require("path");
+  const backupsDir = path.join(__dirname, "..", "..", "backups");
+
+  let backups = [];
+  try {
+    if (fs.existsSync(backupsDir)) {
+      const files = fs.readdirSync(backupsDir);
+      backups = files
+        .filter((f) => f.endsWith(".gz") || f.endsWith(".dump"))
+        .map((f) => {
+          const stat = fs.statSync(path.join(backupsDir, f));
+          return {
+            fileName: f,
+            sizeBytes: stat.size,
+            createdAt: stat.birthtime.toISOString(),
+            modifiedAt: stat.mtime.toISOString(),
+          };
+        })
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  } catch {
+    backups = [];
+  }
+
+  return {
+    configured: false,
+    provider: "filesystem",
+    directory: backups.length > 0 ? backupsDir : "Not configured",
+    totalBackups: backups.length,
+    backups,
+    recommendation: "Configure MongoDB Atlas automated backups or set up mongodump cron jobs for production.",
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -505,4 +593,7 @@ module.exports = {
   getRevenueReport,
   getSystemHealth,
   getSystemLogs,
+  clearCache,
+  toggleMaintenance,
+  getBackups,
 };

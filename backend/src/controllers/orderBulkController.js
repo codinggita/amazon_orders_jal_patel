@@ -67,6 +67,51 @@ const restoreBulk = catchAsync(async (req, res) => {
   sendSuccess(res, 200, "Bulk restore operation completed.", result);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Bulk Apply Discount
+// ─────────────────────────────────────────────────────────────────────────────
+const applyDiscountBulk = catchAsync(async (req, res) => {
+  const { orderIds, discountPercentage, discountAmount, reason } = req.body;
+  const result = await orderBulkService.applyDiscountToOrders(
+    orderIds,
+    { discountPercentage, discountAmount, reason }
+  );
+  sendSuccess(res, 200, "Bulk discount applied successfully.", result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Bulk Update Payment Status
+// ─────────────────────────────────────────────────────────────────────────────
+const updatePaymentStatusBulk = catchAsync(async (req, res) => {
+  const { orderIds, paymentStatus } = req.body;
+  const result = await orderBulkService.updatePaymentStatusInBulk(
+    orderIds,
+    paymentStatus
+  );
+  sendSuccess(res, 200, "Bulk payment status update completed.", result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. Bulk Update Shipping Status
+// ─────────────────────────────────────────────────────────────────────────────
+const updateShippingStatusBulk = catchAsync(async (req, res) => {
+  const { orderIds, shippingStatus, carrier, trackingNumber } = req.body;
+  const result = await orderBulkService.updateShippingStatusInBulk(
+    orderIds,
+    { shippingStatus, carrier, trackingNumber }
+  );
+  sendSuccess(res, 200, "Bulk shipping status update completed.", result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. Bulk Cleanup Cancelled Orders
+// ─────────────────────────────────────────────────────────────────────────────
+const cleanupCancelledBulk = catchAsync(async (req, res) => {
+  const { olderThanDays } = req.body;
+  const result = await orderBulkService.cleanupCancelledOrders(olderThanDays);
+  sendSuccess(res, 200, "Cleanup of cancelled orders completed.", result);
+});
+
 module.exports = {
   createBulk,
   updateBulk,
@@ -74,4 +119,8 @@ module.exports = {
   updateStatusBulk,
   archiveBulk,
   restoreBulk,
+  applyDiscountBulk,
+  updatePaymentStatusBulk,
+  updateShippingStatusBulk,
+  cleanupCancelledBulk,
 };

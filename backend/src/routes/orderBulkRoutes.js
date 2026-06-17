@@ -72,4 +72,32 @@ router.patch(
   orderBulkController.restoreBulk
 );
 
+/** POST /api/v1/orders/bulk/apply-discount */
+router.post(
+  "/apply-discount",
+  validate(orderBulkValidator.applyDiscountBulk),
+  orderBulkController.applyDiscountBulk
+);
+
+/** PATCH /api/v1/orders/bulk/payment-status */
+router.patch(
+  "/payment-status",
+  validate(orderBulkValidator.updatePaymentStatusBulk),
+  orderBulkController.updatePaymentStatusBulk
+);
+
+/** PATCH /api/v1/orders/bulk/shipping-status */
+router.patch(
+  "/shipping-status",
+  validate(orderBulkValidator.updateShippingStatusBulk),
+  orderBulkController.updateShippingStatusBulk
+);
+
+/** DELETE /api/v1/orders/bulk/cleanup-cancelled */
+router.delete(
+  "/cleanup-cancelled",
+  validate(orderBulkValidator.cleanupCancelledBulk),
+  orderBulkController.cleanupCancelledBulk
+);
+
 module.exports = router;

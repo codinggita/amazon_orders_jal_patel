@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "lint": "eslint src/**/*.js",
     "seed": "node scripts/seeder.js",
-    "seed:destroy": "node scripts/seeder.js -d"
+    "seed:destroy": "node scripts/seeder.js -d",
+    "test": "jest",
+    "test:verbose": "jest --verbose"
   },
   "keywords": [
     "amazon",

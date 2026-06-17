@@ -142,4 +142,36 @@ router.patch(
   adminController.updateUserRoleById
 );
 
+// ── 5. Maintenance & Backups ──────────────────────────────────────────────
+
+/**
+ * DELETE /api/v1/admin/cache/clear
+ * Clears the server-side cache (if configured).
+ */
+router.delete(
+  "/cache/clear",
+  validate(adminValidator.clearCache),
+  adminController.clearSystemCache
+);
+
+/**
+ * POST /api/v1/admin/system/maintenance
+ * Toggles maintenance mode for the system.
+ */
+router.post(
+  "/system/maintenance",
+  validate(adminValidator.toggleMaintenanceMode),
+  adminController.toggleMaintenanceMode
+);
+
+/**
+ * GET /api/v1/admin/backups
+ * Returns information about system backups.
+ */
+router.get(
+  "/backups",
+  validate(adminValidator.getBackups),
+  adminController.getBackupList
+);
+
 module.exports = router;

@@ -126,6 +126,26 @@ const getSystemLogs = {
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. DELETE /admin/cache/clear
+// ─────────────────────────────────────────────────────────────────────────────
+const clearCache = {};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. POST /admin/system/maintenance
+// ─────────────────────────────────────────────────────────────────────────────
+const toggleMaintenanceMode = {
+  body: Joi.object().keys({
+    enabled: Joi.boolean().required(),
+    message: Joi.string().max(500).optional(),
+  }),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. GET /admin/backups
+// ─────────────────────────────────────────────────────────────────────────────
+const getBackups = {};
+
 module.exports = {
   getUsers,
   getUser,
@@ -137,4 +157,7 @@ module.exports = {
   getRevenueReport,
   getSystemHealth,
   getSystemLogs,
+  clearCache,
+  toggleMaintenanceMode,
+  getBackups,
 };
