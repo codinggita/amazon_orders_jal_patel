@@ -50,6 +50,8 @@ const recommendationRoutes = require("./routes/recommendationRoutes");
 const trendingRoutes = require("./routes/trendingRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const errorRoutes = require("./routes/errorRoutes");
+const statsRoutes = require("./routes/statsRoutes");          // Phase 18 — Statistics
+const validateRoutes = require("./routes/validateRoutes");    // Phase 19 — Data Validation
 
 // Future routes will be imported here:
 // const productRoutes = require('./routes/productRoutes');
@@ -134,6 +136,8 @@ app.use(`${API_PREFIX}/recommendations`, recommendationRoutes);  // Phase 14 —
 app.use(`${API_PREFIX}/trending`, trendingRoutes);               // Phase 15 — Trending
 app.use(`${API_PREFIX}/activity`, activityRoutes);              // Phase 16 — Activity Logs
 app.use(`${API_PREFIX}/errors`, errorRoutes);                   // Phase 17 — Error Simulation
+app.use(`${API_PREFIX}/stats`, statsRoutes);                    // Phase 18 — Statistics
+app.use(`${API_PREFIX}/validate`, validateRoutes);              // Phase 19 — Data Validation
 
 // Future routes:
 // app.use(`${API_PREFIX}/products`, productRoutes);

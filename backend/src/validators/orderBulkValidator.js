@@ -105,6 +105,55 @@ const archiveBulk = orderIdsArrayBody;
 // ─────────────────────────────────────────────────────────────────────────────
 const restoreBulk = orderIdsArrayBody;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. POST /orders/bulk/apply-discount
+// ─────────────────────────────────────────────────────────────────────────────
+const applyDiscountBulk = {
+  body: Joi.object().keys({
+    orderIds: Joi.array().items(objectId).min(1).max(1000).required(),
+    discountPercentage: Joi.number().min(0).max(100).optional(),
+    discountAmount: Joi.number().min(0).optional(),
+    reason: Joi.string().max(500).optional(),
+  }).min(2),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. PATCH /orders/bulk/payment-status
+// ─────────────────────────────────────────────────────────────────────────────
+const updatePaymentStatusBulk = {
+  body: Joi.object().keys({
+    orderIds: Joi.array().items(objectId).min(1).max(1000).required(),
+    paymentStatus: Joi.string()
+      .valid("pending", "completed", "failed", "refunded")
+      .required(),
+  }),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. PATCH /orders/bulk/shipping-status
+// ─────────────────────────────────────────────────────────────────────────────
+const updateShippingStatusBulk = {
+  body: Joi.object().keys({
+    orderIds: Joi.array().items(objectId).min(1).max(1000).required(),
+    shippingStatus: Joi.string()
+      .valid("preparing", "picked_up", "in_transit", "out_for_delivery", "delivered", "exception", "returned")
+      .required(),
+    carrier: Joi.string()
+      .valid("fedex", "ups", "usps", "dhl", "amazon_logistics")
+      .optional(),
+    trackingNumber: Joi.string().optional(),
+  }),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. DELETE /orders/bulk/cleanup-cancelled
+// ─────────────────────────────────────────────────────────────────────────────
+const cleanupCancelledBulk = {
+  body: Joi.object().keys({
+    olderThanDays: Joi.number().integer().min(1).max(365).default(30),
+  }),
+};
+
 module.exports = {
   createBulk,
   updateBulk,
@@ -112,4 +161,8 @@ module.exports = {
   updateStatusBulk,
   archiveBulk,
   restoreBulk,
+  applyDiscountBulk,
+  updatePaymentStatusBulk,
+  updateShippingStatusBulk,
+  cleanupCancelledBulk,
 };

@@ -272,6 +272,169 @@ const restoreOrdersInBulk = async (orderIds) => {
   };
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Bulk Apply Discount
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Applies a discount to multiple orders.
+ *
+ * @param {Array<string>} orderIds - Array of order IDs.
+ * @param {Object} discount - { discountPercentage?, discountAmount?, reason }
+ * @returns {Promise<Object>} Discount application summary.
+ */
+const applyDiscountToOrders = async (orderIds, discount) => {
+  if (!orderIds || orderIds.length === 0) {
+    throw new ApiError("No order IDs provided for bulk discount.", 400);
+  }
+
+  const { discountPercentage, discountAmount, reason } = discount;
+
+  const updateFields = { discountReason: reason || "Bulk discount applied" };
+  if (discountPercentage) {
+    updateFields.discountPercentage = discountPercentage;
+    updateFields.discountType = "percentage";
+  } else if (discountAmount) {
+    updateFields.discountAmount = discountAmount;
+    updateFields.discountType = "fixed";
+  }
+
+  const historyEntry = {
+    status: "discount_applied",
+    changedAt: new Date(),
+    changedBy: "system_bulk",
+    note: reason || "Bulk discount applied.",
+  };
+
+  const result = await Order.updateMany(
+    { _id: { $in: orderIds } },
+    {
+      $set: updateFields,
+      $push: { statusHistory: historyEntry },
+    }
+  );
+
+  return {
+    message: "Bulk discount applied.",
+    matchedCount: result.matchedCount,
+    modifiedCount: result.modifiedCount,
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Bulk Update Payment Status
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Updates payment status for multiple orders.
+ * Uses the Payment model if available, otherwise updates order metadata.
+ *
+ * @param {Array<string>} orderIds - Array of order IDs.
+ * @param {string} paymentStatus - New payment status.
+ * @returns {Promise<Object>} Update summary.
+ */
+const updatePaymentStatusInBulk = async (orderIds, paymentStatus) => {
+  if (!orderIds || orderIds.length === 0) {
+    throw new ApiError("No order IDs provided for bulk payment update.", 400);
+  }
+
+  const Payment = require("../models/Payment");
+
+  if (Payment) {
+    const result = await Payment.updateMany(
+      { order: { $in: orderIds } },
+      {
+        $set: {
+          status: paymentStatus,
+          ...(paymentStatus === "completed" ? { paidAt: new Date() } : {}),
+        },
+      }
+    );
+
+    return {
+      message: `Bulk payment status update to '${paymentStatus}' executed.`,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    };
+  }
+
+  return {
+    message: "Payment model not available. No payments updated.",
+    matchedCount: 0,
+    modifiedCount: 0,
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. Bulk Update Shipping Status
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Updates shipping status for multiple orders via the Shipment model.
+ *
+ * @param {Array<string>} orderIds - Array of order IDs.
+ * @param {Object} shippingInfo - { shippingStatus, carrier, trackingNumber }
+ * @returns {Promise<Object>} Update summary.
+ */
+const updateShippingStatusInBulk = async (orderIds, shippingInfo) => {
+  if (!orderIds || orderIds.length === 0) {
+    throw new ApiError("No order IDs provided for bulk shipping update.", 400);
+  }
+
+  const Shipment = require("../models/Shipment");
+
+  if (Shipment) {
+    const updateData = { status: shippingInfo.shippingStatus };
+    if (shippingInfo.carrier) updateData.carrier = shippingInfo.carrier;
+    if (shippingInfo.trackingNumber) updateData.trackingNumber = shippingInfo.trackingNumber;
+    if (shippingInfo.shippingStatus === "delivered") {
+      updateData.actualDeliveryDate = new Date();
+    }
+
+    const result = await Shipment.updateMany(
+      { order: { $in: orderIds } },
+      { $set: updateData }
+    );
+
+    return {
+      message: `Bulk shipping status update to '${shippingInfo.shippingStatus}' executed.`,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    };
+  }
+
+  return {
+    message: "Shipment model not available. No shipments updated.",
+    matchedCount: 0,
+    modifiedCount: 0,
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. Bulk Cleanup Cancelled Orders
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Permanently deletes cancelled orders older than a specified number of days.
+ *
+ * @param {number} olderThanDays - Delete orders cancelled more than this many days ago.
+ * @returns {Promise<Object>} Deletion summary.
+ */
+const cleanupCancelledOrders = async (olderThanDays = 30) => {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - Math.max(parseInt(olderThanDays, 10) || 30, 1));
+
+  const result = await Order.deleteMany({
+    status: "cancelled",
+    cancelledAt: { $lte: cutoffDate },
+  });
+
+  return {
+    message: `Deleted cancelled orders older than ${olderThanDays} days.`,
+    deletedCount: result.deletedCount,
+  };
+};
+
 module.exports = {
   createOrdersInBulk,
   updateOrdersInBulk,
@@ -279,4 +442,8 @@ module.exports = {
   updateOrdersStatus,
   archiveOrdersInBulk,
   restoreOrdersInBulk,
+  applyDiscountToOrders,
+  updatePaymentStatusInBulk,
+  updateShippingStatusInBulk,
+  cleanupCancelledOrders,
 };

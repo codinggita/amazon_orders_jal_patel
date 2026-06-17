@@ -168,6 +168,34 @@ const getSystemAuditLogs = catchAsync(async (req, res) => {
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. Clear System Cache
+// ─────────────────────────────────────────────────────────────────────────────
+const clearSystemCache = catchAsync(async (req, res) => {
+  const result = await adminService.clearCache();
+  sendSuccess(res, 200, "System cache cleared successfully.", result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. Toggle Maintenance Mode
+// ─────────────────────────────────────────────────────────────────────────────
+const toggleMaintenanceMode = catchAsync(async (req, res) => {
+  const result = await adminService.toggleMaintenance(req.body.enabled, req.body.message);
+  sendSuccess(res, 200, `Maintenance mode ${result.enabled ? "enabled" : "disabled"}.`, result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. Get Backup List
+// ─────────────────────────────────────────────────────────────────────────────
+const getBackupList = catchAsync(async (req, res) => {
+  const result = await adminService.getBackups();
+  sendSuccess(res, 200, "Backup information retrieved successfully.", result);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exports
+// ─────────────────────────────────────────────────────────────────────────────
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -179,4 +207,7 @@ module.exports = {
   getRevenueReportData,
   getSystemHealthMetrics,
   getSystemAuditLogs,
+  clearSystemCache,
+  toggleMaintenanceMode,
+  getBackupList,
 };
