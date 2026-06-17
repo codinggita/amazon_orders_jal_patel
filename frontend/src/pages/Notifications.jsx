@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import EmptyState from '../components/EmptyState';
 import Skeleton from '../components/Skeleton';
+import axiosClient from '../api/axios';
 import {
   Bell,
   Info,
@@ -18,20 +19,28 @@ const Notifications = () => {
   useDocumentTitle('Notifications');
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadNotifications = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await axiosClient.get('/notifications');
+      const data = res?.data || res;
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+      // Fallback to empty state instead of crashing
+      setNotifications([]);
+      setError(err?.message || 'Failed to load notifications');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setNotifications([
-        { id: 1, type: 'order', title: 'New Order #ORD-001', message: 'Order has been placed successfully.', time: '2 min ago', read: false },
-        { id: 2, type: 'shipping', title: 'Shipment Update', message: 'Package #SH-1234 has been delivered.', time: '15 min ago', read: false },
-        { id: 3, type: 'info', title: 'System Update', message: 'System maintenance scheduled for tonight.', time: '1 hour ago', read: false },
-        { id: 4, type: 'alert', title: 'Low Stock Warning', message: 'Product #PROD-567 is running low on stock.', time: '3 hours ago', read: true },
-        { id: 5, type: 'order', title: 'Order #ORD-002 Cancelled', message: 'Customer requested cancellation.', time: '5 hours ago', read: true },
-      ]);
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+    loadNotifications();
+  }, [loadNotifications]);
 
   const getIcon = (type) => {
     switch (type) {
@@ -39,17 +48,21 @@ const Notifications = () => {
       case 'shipping': return <Truck className="h-4 w-4 text-purple-400" />;
       case 'info': return <Info className="h-4 w-4 text-emerald-400" />;
       case 'alert': return <AlertCircle className="h-4 w-4 text-amber-400" />;
+      case 'success': return <CheckCircle2 className="h-4 w-4 text-emerald-400" />;
       default: return <Bell className="h-4 w-4 text-slate-400" />;
     }
   };
 
-  const markAsRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  const markAsRead = async (id) => {
+    try {
+      await axiosClient.patch(`/notifications/read/${id}`);
+      setNotifications(prev => prev.map(n => n.id === id || n._id === id ? { ...n, read: true, isRead: true } : n));
+    } catch {
+      setNotifications(prev => prev.map(n => n.id === id || n._id === id ? { ...n, read: true, isRead: true } : n));
+    }
   };
 
-  const clearAll = () => {
-    setNotifications([]);
-  };
+  const clearAll = () => setNotifications([]);
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
@@ -63,12 +76,24 @@ const Notifications = () => {
             <p className="text-xs text-slate-400 font-medium">Stay updated with system events and alerts</p>
           </div>
         </div>
-        {notifications.length > 0 && (
-          <button onClick={clearAll} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-400 hover:text-slate-200 transition-colors">
-            <X className="h-3.5 w-3.5" /> Clear All
+        <div className="flex items-center gap-2">
+          <button onClick={loadNotifications} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-400 hover:text-slate-200 transition-colors cursor-pointer">
+            <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
           </button>
-        )}
+          {notifications.length > 0 && (
+            <button onClick={clearAll} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-400 hover:text-slate-200 transition-colors cursor-pointer">
+              <X className="h-3.5 w-3.5" /> Clear All
+            </button>
+          )}
+        </div>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-500/30 text-amber-400 text-sm flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {error} — showing empty state.
+        </div>
+      )}
 
       <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden">
         {isLoading ? (
@@ -87,25 +112,33 @@ const Notifications = () => {
           <EmptyState icon={BellOff} title="No Notifications" message="You're all caught up! No new notifications at this time." />
         ) : (
           <div className="divide-y divide-slate-800/60">
-            {notifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => markAsRead(n.id)}
-                className={`flex items-start gap-4 p-4 hover:bg-slate-800/30 transition-colors cursor-pointer ${!n.read ? 'bg-slate-800/20 border-l-2 border-amazon-orange' : ''}`}
-              >
-                <div className={`p-2 rounded-lg shrink-0 ${!n.read ? 'bg-slate-800' : 'bg-slate-900'}`}>
-                  {getIcon(n.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <h4 className={`text-sm ${!n.read ? 'font-bold text-slate-100' : 'font-medium text-slate-300'}`}>{n.title}</h4>
-                    <span className="text-[10px] text-slate-500 shrink-0">{n.time}</span>
+            {notifications.map((n) => {
+              const id = n._id || n.id;
+              const isRead = n.isRead || n.read;
+              return (
+                <div
+                  key={id}
+                  onClick={() => markAsRead(id)}
+                  className={`flex items-start gap-4 p-4 hover:bg-slate-800/30 transition-colors cursor-pointer ${!isRead ? 'bg-slate-800/20 border-l-2 border-amazon-orange' : ''}`}
+                >
+                  <div className={`p-2 rounded-lg shrink-0 ${!isRead ? 'bg-slate-800' : 'bg-slate-900'}`}>
+                    {getIcon(n.type)}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">{n.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className={`text-sm ${!isRead ? 'font-bold text-slate-100' : 'font-medium text-slate-300'}`}>
+                        {n.title || n.message}
+                      </h4>
+                      <span className="text-[10px] text-slate-500 shrink-0">
+                        {n.time || new Date(n.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">{n.body || n.description || ''}</p>
+                  </div>
+                  {!isRead && <span className="h-2 w-2 rounded-full bg-amazon-orange shrink-0 mt-2" />}
                 </div>
-                {!n.read && <span className="h-2 w-2 rounded-full bg-amazon-orange shrink-0 mt-2" />}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

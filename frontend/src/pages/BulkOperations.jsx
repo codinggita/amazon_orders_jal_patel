@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useAuth from '../hooks/useAuth';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import axiosClient from '../api/axios';
 import {
   Layers3,
   ShieldCheck,
@@ -14,7 +15,8 @@ import {
   Trash2,
   Archive,
   RotateCcw,
-  Send
+  Send,
+  Package
 } from 'lucide-react';
 
 const BulkOperations = () => {
@@ -24,6 +26,8 @@ const BulkOperations = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState(null);
+  const [orderIds, setOrderIds] = useState('');
+  const [recentOps, setRecentOps] = useState([]);
 
   const actions = [
     { value: 'status', label: 'Update Status', icon: RefreshCw, desc: 'Bulk update order statuses' },
@@ -34,13 +38,53 @@ const BulkOperations = () => {
 
   const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
-  const handleExecute = () => {
+  const handleExecute = async () => {
+    if (!selectedAction) return;
     setProcessing(true);
     setResult(null);
-    setTimeout(() => {
-      setResult({ success: true, message: `${selectedAction === 'status' ? 'Status updated' : selectedAction + ' completed'} successfully for batch of 0 orders.` });
+
+    const ids = orderIds
+      .split(/[\n,]+/)
+      .map(id => id.trim())
+      .filter(id => id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id));
+
+    if (ids.length === 0) {
+      setResult({ success: false, message: 'Please enter valid MongoDB Order IDs (24-character hex strings).' });
       setProcessing(false);
-    }, 1500);
+      return;
+    }
+
+    try {
+      let response;
+      const payload = { orderIds: ids };
+
+      if (selectedAction === 'status') {
+        if (!selectedStatus) {
+          setResult({ success: false, message: 'Please select a target status.' });
+          setProcessing(false);
+          return;
+        }
+        response = await axiosClient.patch('/orders/bulk/status', { ...payload, status: selectedStatus });
+      } else if (selectedAction === 'archive') {
+        response = await axiosClient.patch('/orders/bulk/archive', payload);
+      } else if (selectedAction === 'restore') {
+        response = await axiosClient.patch('/orders/bulk/restore', payload);
+      } else if (selectedAction === 'delete') {
+        response = await axiosClient.delete('/orders/bulk/delete', { data: payload });
+      }
+
+      const data = response?.data || response;
+      const affected = data?.modifiedCount || data?.deletedCount || data?.affected || ids.length;
+      const msg = `${selectedAction === 'status' ? 'Status updated to "' + selectedStatus + '"' : selectedAction.charAt(0).toUpperCase() + selectedAction.slice(1) + ' completed'} for ${affected} order(s).`;
+
+      setResult({ success: true, message: msg });
+      setRecentOps(prev => [{ action: selectedAction, status: selectedStatus, count: affected, time: new Date().toLocaleTimeString() }, ...prev.slice(0, 4)]);
+      setOrderIds('');
+    } catch (err) {
+      setResult({ success: false, message: err?.message || 'Bulk operation failed. Please check your order IDs and try again.' });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   if (user?.role !== 'admin') {
@@ -70,7 +114,7 @@ const BulkOperations = () => {
               <ShieldCheck className="h-3 w-3" /> Admin Exclusive
             </span>
           </div>
-          <p className="text-xs text-slate-400">Perform batch operations on orders, users, and system data</p>
+          <p className="text-xs text-slate-400">Perform batch operations on orders — enter valid Order IDs below</p>
         </div>
       </div>
 
@@ -80,6 +124,7 @@ const BulkOperations = () => {
             <Send className="h-4 w-4 text-amazon-orange" /> Batch Action
           </h3>
           <div className="space-y-4">
+            {/* Action Type */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Action Type</label>
               <div className="grid grid-cols-2 gap-2">
@@ -101,6 +146,7 @@ const BulkOperations = () => {
               </div>
             </div>
 
+            {/* Status selector for status action */}
             {selectedAction === 'status' && (
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">New Status</label>
@@ -121,6 +167,19 @@ const BulkOperations = () => {
                 </div>
               </div>
             )}
+
+            {/* Order IDs Input */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Order IDs (one per line or comma separated)</label>
+              <textarea
+                value={orderIds}
+                onChange={(e) => setOrderIds(e.target.value)}
+                placeholder="Enter 24-character MongoDB Order IDs..."
+                rows={4}
+                className="w-full bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amazon-orange/50 resize-none font-mono"
+              />
+              <p className="text-[10px] text-slate-600">IDs must be 24-character hexadecimal strings (MongoDB ObjectIds)</p>
+            </div>
 
             <button
               onClick={handleExecute}
@@ -165,10 +224,24 @@ const BulkOperations = () => {
 
           <div className="glass-card rounded-2xl border border-slate-800 p-6">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Recent Batch Operations</h3>
-            <div className="text-center py-6 text-slate-500">
-              <FileText className="h-8 w-8 mx-auto mb-2 text-slate-700" />
-              <p className="text-xs">No recent operations</p>
-            </div>
+            {recentOps.length === 0 ? (
+              <div className="text-center py-6 text-slate-500">
+                <Package className="h-8 w-8 mx-auto mb-2 text-slate-700" />
+                <p className="text-xs">No recent operations</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentOps.map((op, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
+                    <div>
+                      <p className="text-xs font-bold text-slate-200 capitalize">{op.action} {op.status && `→ ${op.status}`}</p>
+                      <p className="text-[10px] text-slate-500">{op.count} orders · {op.time}</p>
+                    </div>
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

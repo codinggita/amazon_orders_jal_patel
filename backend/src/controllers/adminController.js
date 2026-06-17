@@ -124,8 +124,12 @@ const getAllOrders = catchAsync(async (req, res) => {
 // 7. Get Sales Analytics Report
 // ─────────────────────────────────────────────────────────────────────────────
 const getSalesReportData = catchAsync(async (req, res) => {
-  const { startDate, endDate, groupBy } = req.query;
-  const result = await adminService.getSalesReport(startDate, endDate, groupBy);
+  const end = req.query.endDate ? new Date(req.query.endDate) : new Date();
+  const start = req.query.startDate
+    ? new Date(req.query.startDate)
+    : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const { groupBy = "day" } = req.query;
+  const result = await adminService.getSalesReport(start, end, groupBy);
   sendSuccess(res, 200, "Sales aggregated analytics report generated.", result);
 });
 
@@ -133,8 +137,12 @@ const getSalesReportData = catchAsync(async (req, res) => {
 // 8. Get Revenue Analytics Report
 // ─────────────────────────────────────────────────────────────────────────────
 const getRevenueReportData = catchAsync(async (req, res) => {
-  const { startDate, endDate, groupBy } = req.query;
-  const result = await adminService.getRevenueReport(startDate, endDate, groupBy);
+  const end = req.query.endDate ? new Date(req.query.endDate) : new Date();
+  const start = req.query.startDate
+    ? new Date(req.query.startDate)
+    : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const { groupBy = "day" } = req.query;
+  const result = await adminService.getRevenueReport(start, end, groupBy);
   sendSuccess(res, 200, "Revenue breakdown report generated successfully.", result);
 });
 

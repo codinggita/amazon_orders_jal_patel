@@ -89,14 +89,12 @@ const getOrders = paginationQuerySchema;
 // ─────────────────────────────────────────────────────────────────────────────
 const getSalesReport = {
   query: Joi.object().keys({
-    startDate: Joi.date().iso().required().messages({
+    startDate: Joi.date().iso().optional().messages({
       "date.format": "startDate must be a valid ISO 8601 date (e.g. YYYY-MM-DD).",
-      "any.required": "startDate query parameter is required.",
     }),
-    endDate: Joi.date().iso().min(Joi.ref("startDate")).required().messages({
+    endDate: Joi.date().iso().optional().messages({
       "date.format": "endDate must be a valid ISO 8601 date.",
       "date.min": "endDate cannot be chronologically prior to startDate.",
-      "any.required": "endDate query parameter is required.",
     }),
     groupBy: Joi.string().valid("day", "month", "year").default("day").messages({
       "any.only": "groupBy option must be 'day', 'month', or 'year'.",
