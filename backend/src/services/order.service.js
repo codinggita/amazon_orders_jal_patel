@@ -6,6 +6,7 @@
  */
 
 const Order = require("../models/order.model");
+const Payment = require("../models/Payment");
 const ApiError = require("../utils/ApiError");
 const QueryBuilder = require("../utils/QueryBuilder");
 const { buildInvoice } = require("../utils/invoiceGenerator");
@@ -27,6 +28,25 @@ const queryOrders = async (query) => {
 
   const orders = await builder.mongooseQuery;
 
+  const orderIds = orders.map((o) => o._id).filter(Boolean);
+  if (orderIds.length > 0) {
+    const payments = await Payment.find({ order: { $in: orderIds } }).lean();
+    const paymentMap = {};
+    payments.forEach((p) => {
+      paymentMap[p.order.toString()] = p;
+    });
+    orders.forEach((order) => {
+      const payment = paymentMap[order._id.toString()];
+      if (payment) {
+        order.paymentMethod = payment.paymentMethod;
+        order.paymentStatus = payment.status;
+      } else {
+        order.paymentMethod = null;
+        order.paymentStatus = null;
+      }
+    });
+  }
+
   const countBuilder = new QueryBuilder(Order.find(), query).filter().search(["status"]);
   const totalResults = await countBuilder.mongooseQuery.countDocuments();
 
@@ -47,6 +67,11 @@ const getOrderById = async (orderId) => {
   const order = await Order.findById(orderId).populate("user", "firstName lastName email");
   if (!order) {
     throw new ApiError("Order not found", 404);
+  }
+  const payment = await Payment.findOne({ order: orderId }).lean();
+  if (payment) {
+    order._doc.paymentMethod = payment.paymentMethod;
+    order._doc.paymentStatus = payment.status;
   }
   return order;
 };

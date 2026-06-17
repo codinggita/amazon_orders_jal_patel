@@ -1,30 +1,51 @@
-// Mock API for Dashboard to decouple UI development from backend availability
+import axiosClient from '../../../api/axios';
 
 export const fetchDashboardStats = async () => {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  const [overviewRes, revenueRes, ordersRes] = await Promise.all([
+    axiosClient.get('/dashboard/overview'),
+    axiosClient.get('/dashboard/revenue', { params: { period: 'monthly' } }),
+    axiosClient.get('/dashboard/orders'),
+  ]);
+
+  const overview = overviewRes.data || overviewRes;
+  const revenue = revenueRes.data || revenueRes;
+  const orders = ordersRes.data || ordersRes;
+
+  const revenueData = (revenue || []).map((r) => ({
+    name: r.period,
+    revenue: r.revenue,
+  }));
+
+  const categoryData = (orders.byStatus || []).map((s) => ({
+    name: s.status.charAt(0).toUpperCase() + s.status.slice(1),
+    value: s.count,
+  }));
+
+  const totalOrders = overview.orders?.total || 0;
+  const totalRevenue = overview.revenue?.total || 0;
+  const pendingOrders = overview.orders?.pending || 0;
+  const deliveredOrders = overview.orders?.delivered || 0;
 
   return {
     kpis: {
-      totalRevenue: { value: '$124,563.00', trend: 12.5 },
-      totalOrders: { value: '1,423', trend: 8.2 },
-      pendingOrders: { value: '56', trend: -2.4 },
-      deliveredOrders: { value: '1,280', trend: 14.1 },
+      totalRevenue: {
+        value: `$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+        trend: 0,
+      },
+      totalOrders: {
+        value: totalOrders.toLocaleString(),
+        trend: 0,
+      },
+      pendingOrders: {
+        value: pendingOrders.toLocaleString(),
+        trend: 0,
+      },
+      deliveredOrders: {
+        value: deliveredOrders.toLocaleString(),
+        trend: 0,
+      },
     },
-    revenueData: [
-      { name: 'Jan', revenue: 45000 },
-      { name: 'Feb', revenue: 52000 },
-      { name: 'Mar', revenue: 48000 },
-      { name: 'Apr', revenue: 61000 },
-      { name: 'May', revenue: 59000 },
-      { name: 'Jun', revenue: 75000 },
-      { name: 'Jul', revenue: 82000 },
-    ],
-    categoryData: [
-      { name: 'Electronics', value: 45 },
-      { name: 'Apparel', value: 25 },
-      { name: 'Home & Kitchen', value: 20 },
-      { name: 'Books', value: 10 },
-    ],
+    revenueData,
+    categoryData,
   };
 };

@@ -1,26 +1,42 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
-import Dashboard from '../pages/Dashboard';
-import NotFound from '../pages/NotFound';
-import Login from '../pages/Login';
-import Orders from '../pages/Orders';
-import OrderDetails from '../pages/OrderDetails';
-import Shipping from '../pages/Shipping';
-import Tracking from '../pages/Tracking';
-import Analytics from '../pages/Analytics';
-import Users from '../pages/Users';
-import Admin from '../pages/Admin';
-import Notifications from '../pages/Notifications';
-import ActivityLogs from '../pages/ActivityLogs';
-import SystemHealth from '../pages/SystemHealth';
-import Settings from '../pages/Settings';
-import BulkOperations from '../pages/BulkOperations';
+import GlobalErrorBoundary from '../components/GlobalErrorBoundary';
+
+const Dashboard = lazy(() => import('../pages/Dashboard'));
+const NotFound = lazy(() => import('../pages/NotFound'));
+const Login = lazy(() => import('../pages/Login'));
+const Orders = lazy(() => import('../pages/Orders'));
+const OrderDetails = lazy(() => import('../pages/OrderDetails'));
+const Shipping = lazy(() => import('../pages/Shipping'));
+const Tracking = lazy(() => import('../pages/Tracking'));
+const Analytics = lazy(() => import('../pages/Analytics'));
+const Users = lazy(() => import('../pages/Users'));
+const Admin = lazy(() => import('../pages/Admin'));
+const Notifications = lazy(() => import('../pages/Notifications'));
+const ActivityLogs = lazy(() => import('../pages/ActivityLogs'));
+const SystemHealth = lazy(() => import('../pages/SystemHealth'));
+const Settings = lazy(() => import('../pages/Settings'));
+const BulkOperations = lazy(() => import('../pages/BulkOperations'));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="flex flex-col items-center gap-4">
+      <div className="h-10 w-10 border-4 border-amazon-orange/30 border-t-amazon-orange rounded-full animate-spin" />
+      <p className="text-slate-500 text-sm font-medium">Loading...</p>
+    </div>
+  </div>
+);
 
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <Login />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <Login />
+      </Suspense>
+    ),
   },
   {
     path: '/',
@@ -29,64 +45,124 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </ProtectedRoute>
     ),
-    errorElement: <NotFound />,
+    errorElement: (
+      <Suspense fallback={<PageLoader />}>
+        <NotFound />
+      </Suspense>
+    ),
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Dashboard />
+          </Suspense>
+        ),
       },
       {
         path: 'orders',
-        element: <Orders />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Orders />
+          </Suspense>
+        ),
       },
       {
         path: 'orders/:id',
-        element: <OrderDetails />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrderDetails />
+          </Suspense>
+        ),
       },
       {
         path: 'shipping',
-        element: <Shipping />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Shipping />
+          </Suspense>
+        ),
       },
       {
         path: 'shipping/tracking/:id',
-        element: <Tracking />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Tracking />
+          </Suspense>
+        ),
       },
       {
         path: 'analytics',
-        element: <Analytics />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Analytics />
+          </Suspense>
+        ),
       },
       {
         path: 'users',
-        element: <Users />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Users />
+          </Suspense>
+        ),
       },
       {
         path: 'admin',
-        element: <Admin />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Admin />
+          </Suspense>
+        ),
       },
       {
         path: 'admin/bulk-operations',
-        element: <BulkOperations />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BulkOperations />
+          </Suspense>
+        ),
       },
       {
         path: 'notifications',
-        element: <Notifications />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Notifications />
+          </Suspense>
+        ),
       },
       {
         path: 'logs',
-        element: <ActivityLogs />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <ActivityLogs />
+          </Suspense>
+        ),
       },
       {
         path: 'health',
-        element: <SystemHealth />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <SystemHealth />
+          </Suspense>
+        ),
       },
       {
         path: 'settings',
-        element: <Settings />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Settings />
+          </Suspense>
+        ),
       },
       {
         path: '*',
-        element: <NotFound />,
-      }
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <NotFound />
+          </Suspense>
+        ),
+      },
     ],
   },
 ]);
