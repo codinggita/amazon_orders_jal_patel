@@ -1,8 +1,15 @@
 "use strict";
 
+/**
+ * @file search.service.js
+ * @description All search operations backed by the real AmazonOrder "database" collection.
+ *
+ * Field mapping (flat schema):
+ *   CustomerName, CustomerID, ProductName, Category, Brand, OrderStatus,
+ *   PaymentMethod, City, State, Country, OrderID, OrderDate, TotalAmount
+ */
 
-
-const Order = require("../models/order.model");
+const AmazonOrder = require("../models/AmazonOrder");
 const {
   buildRegex,
   buildFuzzyRegex,
@@ -16,19 +23,13 @@ const {
 } = require("../utils/searchHelpers");
 
 /**
- * @param {Object} filter  - Mongoose filter object
- * @param {{ page, limit, skip }} pagination
- * @param {Object} [projection] - Optional field projection
- * @returns {Promise<{ results: Array, pagination: Object }>}
+ * Internal helper — runs find + count against AmazonOrder.
  */
 const runSearch = async (filter, { page, limit, skip }, projection = {}) => {
   const [results, total] = await Promise.all([
-    Order.find(filter, projection).skip(skip).limit(limit).lean(),
-    Order.countDocuments(filter),
+    AmazonOrder.find(filter, projection).skip(skip).limit(limit).lean(),
+    AmazonOrder.countDocuments(filter),
   ]);
-
-  // NOTE: Zero results is a valid outcome — return empty array with 200, NOT a 404.
-  // Throwing ApiError here was causing legitimate "no results" searches to fail.
   return {
     results,
     pagination: {
@@ -40,12 +41,8 @@ const runSearch = async (filter, { page, limit, skip }, projection = {}) => {
   };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 1. Global Keyword Search
+// ─── 1. Global Keyword Search ─────────────────────────────────────────────────
 // GET /api/v1/orders/search?q=laptop
-// Searches: customer name, product name, category, brand, tracking ID, city
-// ─────────────────────────────────────────────────────────────────────────────
-
 const globalSearch = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
@@ -54,37 +51,24 @@ const globalSearch = async (query) => {
 
   const filter = {
     $or: [
-      // Customer fields (direct or nested)
-      { customerName: regex },
-      { "customer.name": regex },
-      // Product / Item fields
-      { "orderItems.name": regex },
-      { "orderItems.productName": regex },
-      // Category
-      { "orderItems.category": regex },
-      { category: regex },
-      // Brand
-      { "orderItems.brand": regex },
-      { brand: regex },
-      // Tracking
-      { trackingId: regex },
-      { trackingNumber: regex },
-      // Location
-      { "shippingAddress.city": regex },
-      { "shippingAddress.state": regex },
-      { city: regex },
-      { state: regex },
+      { CustomerName:  regex },
+      { CustomerID:    regex },
+      { ProductName:   regex },
+      { Category:      regex },
+      { Brand:         regex },
+      { OrderID:       regex },
+      { City:          regex },
+      { State:         regex },
+      { Country:       regex },
+      { PaymentMethod: regex },
+      { OrderStatus:   regex },
     ],
   };
-
   return runSearch(filter, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 2. Customer Name Search
+// ─── 2. Customer Name Search ──────────────────────────────────────────────────
 // GET /api/v1/orders/search/customer?q=john
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByCustomer = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
@@ -92,134 +76,68 @@ const searchByCustomer = async (query) => {
   recordSearch(q, "customer");
 
   const filter = {
-    $or: [
-      { customerName: regex },
-      { "customer.name": regex },
-      { "user.name": regex },
-      { buyerName: regex },
-    ],
+    $or: [{ CustomerName: regex }, { CustomerID: regex }],
   };
-
   return runSearch(filter, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 3. Product Name Search
+// ─── 3. Product Name Search ───────────────────────────────────────────────────
 // GET /api/v1/orders/search/product?q=iphone
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByProduct = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "product");
 
-  const filter = {
-    $or: [
-      { "orderItems.name": regex },
-      { "orderItems.productName": regex },
-      { productName: regex },
-      { "products.name": regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ ProductName: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. Category Search
+// ─── 4. Category Search ───────────────────────────────────────────────────────
 // GET /api/v1/orders/search/category?q=electronics
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByCategory = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "category");
 
-  const filter = {
-    $or: [
-      { "orderItems.category": regex },
-      { category: regex },
-      { "products.category": regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ Category: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 5. Brand Search
+// ─── 5. Brand Search ──────────────────────────────────────────────────────────
 // GET /api/v1/orders/search/brand?q=samsung
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByBrand = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "brand");
 
-  const filter = {
-    $or: [
-      { "orderItems.brand": regex },
-      { brand: regex },
-      { "products.brand": regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ Brand: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 6. Order Status Search
+// ─── 6. Status Search ─────────────────────────────────────────────────────────
 // GET /api/v1/orders/search/status?q=delivered
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByStatus = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "status");
 
-  const filter = {
-    $or: [
-      { status: regex },
-      { orderStatus: regex },
-      { currentStatus: regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ OrderStatus: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 7. Payment Method Search
+// ─── 7. Payment Method Search ─────────────────────────────────────────────────
 // GET /api/v1/orders/search/payment?q=upi
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByPayment = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "payment");
 
-  const filter = {
-    $or: [
-      { paymentMethod: regex },
-      { "payment.method": regex },
-      { "paymentInfo.method": regex },
-      { "paymentDetails.method": regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ PaymentMethod: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 8. Location Search (city, state, country)
+// ─── 8. Location Search ───────────────────────────────────────────────────────
 // GET /api/v1/orders/search/location?q=delhi
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByLocation = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
@@ -227,75 +145,37 @@ const searchByLocation = async (query) => {
   recordSearch(q, "location");
 
   const filter = {
-    $or: [
-      { "shippingAddress.city": regex },
-      { "shippingAddress.state": regex },
-      { "shippingAddress.country": regex },
-      { city: regex },
-      { state: regex },
-      { country: regex },
-      { "address.city": regex },
-      { "address.state": regex },
-      { "address.country": regex },
-    ],
+    $or: [{ City: regex }, { State: regex }, { Country: regex }],
   };
-
   return runSearch(filter, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 9. Date Search — YYYY | YYYY-MM | YYYY-MM-DD
+// ─── 9. Date Search ───────────────────────────────────────────────────────────
 // GET /api/v1/orders/search/date?q=2025-01
-// ─────────────────────────────────────────────────────────────────────────────
-
 const searchByDate = async (query) => {
   const { q } = query;
   const paging = getPagination(query);
   recordSearch(q, "date");
 
-  const { start, end } = parseDateRange(q);
-
-  const filter = {
-    $or: [
-      { createdAt: { $gte: start, $lt: end } },
-      { orderDate: { $gte: start, $lt: end } },
-      { placedAt: { $gte: start, $lt: end } },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  // OrderDate is stored as a string "YYYY-MM-DD" in the flat dataset
+  const regex = new RegExp(`^${q.replace(/[-]/g, "\\-")}`);
+  return runSearch({ OrderDate: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 10. Tracking ID Search
+// ─── 10. Tracking ID Search ───────────────────────────────────────────────────
 // GET /api/v1/orders/search/tracking?q=TRK123
-// ─────────────────────────────────────────────────────────────────────────────
-
+// (dataset has no TrackingID field — falls back to OrderID match)
 const searchByTracking = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
   const paging = getPagination(query);
   recordSearch(q, "tracking");
 
-  const filter = {
-    $or: [
-      { trackingId: regex },
-      { trackingNumber: regex },
-      { "shipping.trackingId": regex },
-      { "shipping.trackingNumber": regex },
-      { "shipment.trackingId": regex },
-      { "shipment.trackingNumber": regex },
-    ],
-  };
-
-  return runSearch(filter, paging);
+  return runSearch({ OrderID: regex }, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 11. Fuzzy Search — tolerates misspellings
+// ─── 11. Fuzzy Search ─────────────────────────────────────────────────────────
 // GET /api/v1/orders/search/fuzzy?q=headfone
-// ─────────────────────────────────────────────────────────────────────────────
-
 const fuzzySearch = async (query) => {
   const { q } = query;
   const regex = buildFuzzyRegex(q);
@@ -304,63 +184,44 @@ const fuzzySearch = async (query) => {
 
   const filter = {
     $or: [
-      { customerName: regex },
-      { "orderItems.name": regex },
-      { "orderItems.productName": regex },
-      { "orderItems.category": regex },
-      { "orderItems.brand": regex },
-      { productName: regex },
-      { category: regex },
-      { brand: regex },
+      { CustomerName: regex },
+      { ProductName:  regex },
+      { Category:     regex },
+      { Brand:        regex },
     ],
   };
-
   return runSearch(filter, paging);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 12. Autocomplete Search — prefix matching, returns unique suggestions
+// ─── 12. Autocomplete Search ──────────────────────────────────────────────────
 // GET /api/v1/orders/search/autocomplete?q=iph
-// ─────────────────────────────────────────────────────────────────────────────
-
 const autocompleteSearch = async (query) => {
   const { q } = query;
   const regex = buildPrefixRegex(q);
   const limit = Math.min(parseInt(query.limit, 10) || 10, 50);
 
-  // Fetch distinct values from each searchable string field
-  const [productNames, categories, brands, customerNames, statuses, cities] =
+  const [products, categories, brands, customers, statuses, cities] =
     await Promise.all([
-      Order.distinct("orderItems.name", { "orderItems.name": regex }),
-      Order.distinct("orderItems.category", { "orderItems.category": regex }),
-      Order.distinct("orderItems.brand", { "orderItems.brand": regex }),
-      Order.distinct("customerName", { customerName: regex }),
-      Order.distinct("status", { status: regex }),
-      Order.distinct("shippingAddress.city", { "shippingAddress.city": regex }),
+      AmazonOrder.distinct("ProductName",   { ProductName:   regex }),
+      AmazonOrder.distinct("Category",      { Category:      regex }),
+      AmazonOrder.distinct("Brand",         { Brand:         regex }),
+      AmazonOrder.distinct("CustomerName",  { CustomerName:  regex }),
+      AmazonOrder.distinct("OrderStatus",   { OrderStatus:   regex }),
+      AmazonOrder.distinct("City",          { City:          regex }),
     ]);
 
-  // Deduplicate, filter nulls, and cap to requested limit
   const suggestions = [
     ...new Set(
-      [
-        ...productNames,
-        ...categories,
-        ...brands,
-        ...customerNames,
-        ...statuses,
-        ...cities,
-      ].filter(Boolean)
+      [...products, ...categories, ...brands, ...customers, ...statuses, ...cities]
+        .filter(Boolean)
     ),
   ].slice(0, limit);
 
   return { suggestions, total: suggestions.length, q };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 13. Highlight Search — results annotated with match positions
+// ─── 13. Highlight Search ─────────────────────────────────────────────────────
 // GET /api/v1/orders/search/highlight?q=mouse
-// ─────────────────────────────────────────────────────────────────────────────
-
 const highlightSearch = async (query) => {
   const { q } = query;
   const regex = buildRegex(q);
@@ -369,83 +230,51 @@ const highlightSearch = async (query) => {
 
   const filter = {
     $or: [
-      { "orderItems.name": regex },
-      { "orderItems.productName": regex },
-      { customerName: regex },
-      { "orderItems.category": regex },
-      { "orderItems.brand": regex },
-      { productName: regex },
+      { ProductName:  regex },
+      { CustomerName: regex },
+      { Category:     regex },
+      { Brand:        regex },
     ],
   };
 
   const [rawResults, total] = await Promise.all([
-    Order.find(filter).skip(skip).limit(limit).lean(),
-    Order.countDocuments(filter),
+    AmazonOrder.find(filter).skip(skip).limit(limit).lean(),
+    AmazonOrder.countDocuments(filter),
   ]);
 
-  // NOTE: Zero results is valid — return empty array with 200.
   if (total === 0) {
-    return {
-      results: [],
-      pagination: { total: 0, page, limit, pages: 0 },
-    };
+    return { results: [], pagination: { total: 0, page, limit, pages: 0 } };
   }
 
-  // Attach _highlight metadata to each document
-  const results = rawResults.map((order) => {
-    const _highlight = {};
-
-    if (order.customerName) {
-      _highlight.customerName = buildHighlight(order.customerName, q);
-    }
-
-    if (Array.isArray(order.orderItems)) {
-      _highlight.orderItems = order.orderItems.map((item) => ({
-        name: buildHighlight(item.name || item.productName || "", q),
-        category: buildHighlight(item.category || "", q),
-        brand: buildHighlight(item.brand || "", q),
-      }));
-    }
-
-    return { ...order, _highlight };
-  });
+  const results = rawResults.map((order) => ({
+    ...order,
+    _highlight: {
+      CustomerName: buildHighlight(order.CustomerName || "", q),
+      ProductName:  buildHighlight(order.ProductName  || "", q),
+      Category:     buildHighlight(order.Category     || "", q),
+      Brand:        buildHighlight(order.Brand        || "", q),
+    },
+  }));
 
   return {
     results,
-    pagination: {
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    },
+    pagination: { total, page, limit, pages: Math.ceil(total / limit) },
   };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 14. Recent Searches
-// GET /api/v1/orders/search/recent
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ─── 14. Recent Searches ──────────────────────────────────────────────────────
 const getRecentSearchHistory = (query) => {
   const limit = Math.min(parseInt(query.limit, 10) || 10, 50);
   const searches = getRecentSearches(limit);
   return { searches, total: searches.length };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 15. Popular Searches
-// GET /api/v1/orders/search/popular
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ─── 15. Popular Searches ─────────────────────────────────────────────────────
 const getPopularSearchHistory = (query) => {
   const limit = Math.min(parseInt(query.limit, 10) || 10, 50);
   const searches = getPopularSearches(limit);
   return { searches, total: searches.length };
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Exports
-// ─────────────────────────────────────────────────────────────────────────────
 
 module.exports = {
   globalSearch,
