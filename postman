@@ -1,0 +1,1477 @@
+{
+  "info": {
+    "name": "Amazon Orders API",
+    "description": "Complete API collection for Amazon Orders Management System\n\nBase URL: http://localhost:5000/api/v1\n\nAuth: JWT Bearer Token (obtain via POST /auth/login)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"}
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"}
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/profile",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Get Version",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/version"}
+        },
+        {
+          "name": "Get Uptime",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/uptime"}
+        },
+        {
+          "name": "Ping",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/ping"}
+        },
+        {
+          "name": "Database Status",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/status/database"}
+        },
+        {
+          "name": "Cache Status",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/status/cache"}
+        },
+        {
+          "name": "Storage Status",
+          "request": {"method": "GET", "url": "{{baseUrl}}/system/status/storage"}
+        },
+        {
+          "name": "System Config (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/system/config",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerId\": \"string\",\n  \"items\": [{\"productId\": \"string\", \"name\": \"Product Name\", \"quantity\": 1, \"price\": 29.99}],\n  \"shippingAddress\": {\"street\": \"123 Main St\", \"city\": \"New York\", \"state\": \"NY\", \"country\": \"USA\", \"zipCode\": \"10001\"},\n  \"paymentMethod\": \"credit_card\"\n}"}
+          }
+        },
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders", "query": [{"key": "status", "value": "", "disabled": true}, {"key": "page", "value": "1", "disabled": true}, {"key": "limit", "value": "10", "disabled": true}]},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Replace Order (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerId\": \"string\",\n  \"items\": [],\n  \"shippingAddress\": {},\n  \"paymentMethod\": \"credit_card\",\n  \"status\": \"pending\"\n}"}
+          }
+        },
+        {
+          "name": "Update Order (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"shipped\"\n}"}
+          }
+        },
+        {
+          "name": "Delete Order (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Check Order Exists",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}/exists",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Order Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}/summary",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Order Items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}/items",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Order History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}/history",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Order Invoice",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}/invoice",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Archive Order (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/{{orderId}}/archive",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Restore Order (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/{{orderId}}/restore",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/{{orderId}}/cancel",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"reason\": \"Changed mind\"\n}"}
+          }
+        },
+        {
+          "name": "Duplicate Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/{{orderId}}/duplicate",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders - Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Create (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/bulk/create",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"orders\": []\n}"}
+          }
+        },
+        {
+          "name": "Bulk Update (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/update",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"updates\": []\n}"}
+          }
+        },
+        {
+          "name": "Bulk Delete (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/orders/bulk/delete",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": []\n}"}
+          }
+        },
+        {
+          "name": "Bulk Update Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/status",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": [],\n  \"status\": \"shipped\"\n}"}
+          }
+        },
+        {
+          "name": "Bulk Archive (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/archive",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": []\n}"}
+          }
+        },
+        {
+          "name": "Bulk Restore (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/restore",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": []\n}"}
+          }
+        },
+        {
+          "name": "Bulk Apply Discount (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/bulk/apply-discount",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": [],\n  \"discountPercent\": 10\n}"}
+          }
+        },
+        {
+          "name": "Bulk Update Payment Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/payment-status",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": [],\n  \"paymentStatus\": \"paid\"\n}"}
+          }
+        },
+        {
+          "name": "Bulk Update Shipping Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/bulk/shipping-status",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"ids\": [],\n  \"shippingStatus\": \"shipped\"\n}"}
+          }
+        },
+        {
+          "name": "Bulk Cleanup Cancelled (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/orders/bulk/cleanup-cancelled",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"olderThanDays\": 30\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders - Search",
+      "item": [
+        {
+          "name": "Keyword Search",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search?q=keyword"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Recent Searches",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/search/recent"
+          }
+        },
+        {
+          "name": "Popular Searches",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/search/popular"
+          }
+        },
+        {
+          "name": "Search by Customer",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/customer?q=John"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Product",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/product?q=Headphones"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Category",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/category?q=Electronics"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Brand",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/brand?q=Sony"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Status",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/status?q=shipped"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Payment",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/payment?q=credit_card"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Location",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/location?q=New+York"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Date",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/date?q=2024-01"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Search by Tracking",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/tracking?q=TRACK123"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Fuzzy Search",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/fuzzy?q=headeophones"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Autocomplete",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/autocomplete?q=head"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Highlight Search",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/search/highlight?q=wireless"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders - Filter",
+      "item": [
+        {
+          "name": "Filter by Status",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/status?type=shipped"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Payment",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/payment?method=credit_card"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Category",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/category?name=Electronics"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Brand",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/brand?name=Sony"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Price Range",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/price?min=10&max=500"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Date Range",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/date?start=2024-01-01&end=2024-12-31"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by Country",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/country?name=USA"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by State",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/state?name=CA"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter by City",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/city?name=Los+Angeles"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter High Value",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/filter/high-value?amount=1000"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter Discounted",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/filter/discounted",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter Cancelled",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/filter/cancelled",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter Refunded",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/filter/refunded",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter Shipped",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/filter/shipped",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Filter Delivered",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/filter/delivered",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders - Sort",
+      "item": [
+        {
+          "name": "Highest Value",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/highest-value",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Lowest Value",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/lowest-value",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Latest",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/latest",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Oldest",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/oldest",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Most Items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/most-items",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Least Items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/least-items",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Discount",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/sort/discount",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders - Pagination",
+      "item": [
+        {
+          "name": "Paged Orders",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/paged?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Infinite Scroll",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/infinite?cursor=abc123&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Recent Orders",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/recent?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Cancelled Orders",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/cancelled?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Refunded Orders",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/refunded?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Orders by Customer",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/customer/{{customerId}}?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Orders by Product",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/orders/product/{{productId}}?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shipping",
+      "item": [
+        {
+          "name": "Get Carriers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/shipping/carriers",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Pending Shipments (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/shipping/pending?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Delivered Shipments (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/shipping/delivered?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get Returned Shipments (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/shipping/returned?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Create Shipping Label (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/shipping/create-label",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"orderId\": \"string\",\n  \"carrier\": \"fedex\",\n  \"serviceLevel\": \"ground\"\n}"}
+          }
+        },
+        {
+          "name": "Get Tracking Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/shipping/tracking/{{orderId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Update Shipment Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/shipping/update-status/{{orderId}}",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"in_transit\",\n  \"location\": \"Sorting Facility, Memphis\",\n  \"description\": \"Package arrived at sorting facility\"\n}"}
+          }
+        },
+        {
+          "name": "Get Delivery Estimate",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/shipping/estimate/{{orderId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Change Address",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/shipping/change-address/{{orderId}}",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"street\": \"456 Oak Ave\",\n  \"city\": \"San Francisco\",\n  \"state\": \"CA\",\n  \"zipCode\": \"94102\"\n}"}
+          }
+        },
+        {
+          "name": "Reschedule Delivery",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/shipping/reschedule/{{orderId}}",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"newDate\": \"2024-12-25\",\n  \"notes\": \"Please deliver after 2 PM\"\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Sales Report",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/admin/reports/sales?groupBy=month&startDate=2024-01-01&endDate=2024-12-31"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Revenue Report",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/admin/reports/revenue?startDate=2024-01-01&endDate=2024-12-31"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "System Health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/system/health",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "System Logs",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/admin/system/logs?limit=50"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/admin/orders?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/admin/users?page=1&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/users/{{userId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Ban User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/users/{{userId}}/ban",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Unban User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/users/{{userId}}/unban",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/users/{{userId}}/role",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"role\": \"admin\"\n}"}
+          }
+        },
+        {
+          "name": "Clear Cache (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/admin/cache/clear",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Toggle Maintenance Mode (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/admin/system/maintenance",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"enabled\": true\n}"}
+          }
+        },
+        {
+          "name": "Get Backups (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/backups",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Total Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/revenue/total",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Monthly Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/revenue/monthly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Yearly Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/revenue/yearly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Average Order Value",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/orders/average-value",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Order Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/orders/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Cancelled Orders Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/orders/cancelled",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Refunded Orders Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/orders/refunded",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Top Customers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/customers/top",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Top Selling Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/products/top-selling",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Low Selling Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/products/low-selling",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Top Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/categories/top",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Payment Distribution",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/payments/distribution",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Top Cities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/locations/top-cities",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Return Rate",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/returns/rate",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Discount Usage",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/discounts/usage",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dashboard/overview",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Dashboard Revenue",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/dashboard/revenue?period=monthly"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Dashboard Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dashboard/orders",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Dashboard Customers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dashboard/customers",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Dashboard Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dashboard/products",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Total Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/orders/total",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Daily Orders (Last 30 Days)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/orders/daily",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Monthly Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/orders/monthly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Yearly Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/orders/yearly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Total Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/revenue/total",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Daily Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/revenue/daily",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Monthly Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/revenue/monthly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Yearly Revenue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/revenue/yearly",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Total Products Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/products/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Total Customers Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/customers/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Total Categories Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/categories/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Refund Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/refunds/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Cancellation Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/cancellations/count",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Average Shipping Time",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/shipping/average-time",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "System Performance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/stats/system/performance",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/notifications?page=1&limit=20"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/notifications/read/{{notificationId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/notifications/{{notificationId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "item": [
+        {
+          "name": "Product Recommendations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/recommendations/products/{{customerId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Order Recommendations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/recommendations/orders/{{orderId}}",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trending",
+      "item": [
+        {
+          "name": "Trending Products",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/trending/products?period=week&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        },
+        {
+          "name": "Trending Categories",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/trending/categories?period=month&limit=10"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity Logs",
+      "item": [
+        {
+          "name": "Get Activity Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/activity/logs?limit=50"},
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation",
+      "item": [
+        {
+          "name": "Validate Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/order",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"customerId\": \"string\",\n  \"items\": [],\n  \"shippingAddress\": {},\n  \"paymentMethod\": \"credit_card\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Order Update",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/validate/order/{{id}}",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"shipped\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Payment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/payment",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"method\": \"credit_card\",\n  \"transactionId\": \"txn_123\",\n  \"amount\": 99.99\n}"}
+          }
+        },
+        {
+          "name": "Validate Address",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/address",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"street\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\",\n  \"zipCode\": \"10001\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Auth Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/auth/register",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"John\",\n  \"email\": \"john@test.com\",\n  \"password\": \"Pass123!\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Auth Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/auth/login",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"john@test.com\",\n  \"password\": \"Pass123!\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Product",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/product",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Product Name\",\n  \"price\": 29.99,\n  \"category\": \"Electronics\",\n  \"brand\": \"Sony\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Refund",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/refund",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"orderId\": \"string\",\n  \"reason\": \"defective\",\n  \"amount\": 29.99\n}"}
+          }
+        },
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/coupon",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"code\": \"SAVE10\",\n  \"discountPercent\": 10,\n  \"expiryDate\": \"2024-12-31\"\n}"}
+          }
+        },
+        {
+          "name": "Validate Upload",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/validate/upload",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"fileName\": \"report.csv\",\n  \"fileSize\": 1024,\n  \"mimeType\": \"text/csv\"\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Simulation",
+      "item": [
+        {"name": "Not Found (404)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/not-found"}},
+        {"name": "Server Error (500)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/server-error"}},
+        {"name": "Database Error (503)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/database"}},
+        {"name": "Validation Error (422)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/validation"}},
+        {"name": "Rate Limit (429)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/rate-limit"}},
+        {"name": "Token Expired (401)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/token-expired"}},
+        {"name": "Payment Failed (402)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/payment-failed"}},
+        {"name": "Shipping Failed (500)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/shipping-failed"}},
+        {"name": "Upload Error (413)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/upload-error"}},
+        {"name": "Cache Error (503)", "request": {"method": "GET", "url": "{{baseUrl}}/errors/cache-error"}}
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
