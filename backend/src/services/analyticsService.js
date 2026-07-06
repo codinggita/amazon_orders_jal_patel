@@ -1,45 +1,46 @@
 "use strict";
 
-const Order = require("../models/order.model");
+/**
+ * @file analyticsService.js
+ * @description Analytics operations backed by the real AmazonOrder "database" collection.
+ */
+
+const AmazonOrder = require("../models/AmazonOrder");
 
 /**
  * Aggregates total revenue (gross, net, taxes).
  */
 const getTotalRevenue = async () => {
-  const result = await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
+  const result = await AmazonOrder.aggregate([
     {
       $group: {
         _id: null,
-        totalRevenue: { $sum: "$totalPrice" },
-        netRevenue: { $sum: "$itemsPrice" },
-        taxCollected: { $sum: "$taxPrice" },
-        shippingFees: { $sum: "$shippingPrice" },
+        totalRevenue: { $sum: { $toDouble: "$TotalAmount" } },
+        taxCollected: { $sum: { $toDouble: "$Tax" } },
+        shippingFees: { $sum: { $toDouble: "$ShippingCost" } },
       },
     },
     {
       $project: {
         _id: 0,
         totalRevenue: { $round: ["$totalRevenue", 2] },
-        netRevenue: { $round: ["$netRevenue", 2] },
         taxCollected: { $round: ["$taxCollected", 2] },
         shippingFees: { $round: ["$shippingFees", 2] },
       },
     },
   ]);
-  return result[0] || { totalRevenue: 0, netRevenue: 0, taxCollected: 0, shippingFees: 0 };
+  return result[0] || { totalRevenue: 0, taxCollected: 0, shippingFees: 0 };
 };
 
 /**
  * Monthly revenue breakdown.
  */
 const getMonthlyRevenue = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
-        revenue: { $sum: "$totalPrice" },
+        _id: { $substr: ["$OrderDate", 0, 7] }, // YYYY-MM
+        revenue: { $sum: { $toDouble: "$TotalAmount" } },
         ordersCount: { $sum: 1 },
       },
     },
@@ -52,12 +53,11 @@ const getMonthlyRevenue = async () => {
  * Yearly revenue breakdown.
  */
 const getYearlyRevenue = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        _id: { $dateToString: { format: "%Y", date: "$createdAt" } },
-        revenue: { $sum: "$totalPrice" },
+        _id: { $substr: ["$OrderDate", 0, 4] }, // YYYY
+        revenue: { $sum: { $toDouble: "$TotalAmount" } },
         ordersCount: { $sum: 1 },
       },
     },
@@ -70,9 +70,8 @@ const getYearlyRevenue = async () => {
  * Average order value.
  */
 const getAverageOrderValue = async () => {
-  const result = await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
-    { $group: { _id: null, avgValue: { $avg: "$totalPrice" } } },
+  const result = await AmazonOrder.aggregate([
+    { $group: { _id: null, avgValue: { $avg: { $toDouble: "$TotalAmount" } } } },
     { $project: { _id: 0, avgValue: { $round: ["$avgValue", 2] } } },
   ]);
   return result[0] || { avgValue: 0 };
@@ -82,7 +81,7 @@ const getAverageOrderValue = async () => {
  * Total orders count.
  */
 const getOrdersCount = async () => {
-  const count = await Order.countDocuments();
+  const count = await AmazonOrder.countDocuments();
   return { count };
 };
 
@@ -90,16 +89,15 @@ const getOrdersCount = async () => {
  * Cancelled orders analytics.
  */
 const getCancelledOrders = async () => {
-  const count = await Order.countDocuments({ status: "cancelled" });
+  const count = await AmazonOrder.countDocuments({ OrderStatus: /^cancelled$/i });
   return { cancelledCount: count };
 };
 
 /**
  * Refunded orders analytics.
- * Since refund status isn't directly on order schema, we'll map 'returned' or cancelled as proxy.
  */
 const getRefundedOrders = async () => {
-  const count = await Order.countDocuments({ isArchived: true, status: "cancelled" });
+  const count = await AmazonOrder.countDocuments({ OrderStatus: /^returned$/i });
   return { refundedCount: count };
 };
 
@@ -107,26 +105,22 @@ const getRefundedOrders = async () => {
  * Top customers by total spent.
  */
 const getTopCustomers = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
-    { $group: { _id: "$user", totalSpent: { $sum: "$totalPrice" }, orderCount: { $sum: 1 } } },
-    { $sort: { totalSpent: -1 } },
-    { $limit: 10 },
+  return await AmazonOrder.aggregate([
     {
-      $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "_id",
-        as: "userInfo",
+      $group: {
+        _id: "$CustomerID",
+        name: { $first: "$CustomerName" },
+        totalSpent: { $sum: { $toDouble: "$TotalAmount" } },
+        orderCount: { $sum: 1 },
       },
     },
-    { $unwind: "$userInfo" },
+    { $sort: { totalSpent: -1 } },
+    { $limit: 10 },
     {
       $project: {
         _id: 0,
         customerId: "$_id",
-        name: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
-        email: "$userInfo.email",
+        name: 1,
         totalSpent: { $round: ["$totalSpent", 2] },
         orderCount: 1,
       },
@@ -138,14 +132,12 @@ const getTopCustomers = async () => {
  * Top selling products.
  */
 const getTopSellingProducts = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
-    { $unwind: "$orderItems" },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        _id: "$orderItems.name",
-        quantitySold: { $sum: "$orderItems.quantity" },
-        revenueGenerated: { $sum: { $multiply: ["$orderItems.price", "$orderItems.quantity"] } },
+        _id: "$ProductName",
+        quantitySold: { $sum: { $toInt: "$Quantity" } },
+        revenueGenerated: { $sum: { $toDouble: "$TotalAmount" } },
       },
     },
     { $sort: { quantitySold: -1 } },
@@ -165,13 +157,11 @@ const getTopSellingProducts = async () => {
  * Low selling products.
  */
 const getLowSellingProducts = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
-    { $unwind: "$orderItems" },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        _id: "$orderItems.name",
-        quantitySold: { $sum: "$orderItems.quantity" },
+        _id: "$ProductName",
+        quantitySold: { $sum: { $toInt: "$Quantity" } },
       },
     },
     { $sort: { quantitySold: 1 } },
@@ -181,17 +171,14 @@ const getLowSellingProducts = async () => {
 };
 
 /**
- * Top categories analytics (Proxy using product names since category isn't snapshotted).
+ * Top categories analytics.
  */
 const getTopCategories = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
-    { $unwind: "$orderItems" },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        // Grouping by first word of the product as proxy for category
-        _id: { $arrayElemAt: [{ $split: ["$orderItems.name", " "] }, 0] },
-        salesCount: { $sum: "$orderItems.quantity" },
+        _id: "$Category",
+        salesCount: { $sum: { $toInt: "$Quantity" } },
       },
     },
     { $sort: { salesCount: -1 } },
@@ -201,26 +188,36 @@ const getTopCategories = async () => {
 };
 
 /**
- * Payment methods distribution (Proxy since no payment gateway attached).
+ * Payment methods distribution.
  */
 const getPaymentDistribution = async () => {
-  return [
-    { method: "Credit Card", count: await Order.countDocuments({ totalPrice: { $gt: 50 } }) },
-    { method: "PayPal", count: await Order.countDocuments({ totalPrice: { $lte: 50 } }) },
-  ];
+  return await AmazonOrder.aggregate([
+    {
+      $group: {
+        _id: "$PaymentMethod",
+        count: { $sum: 1 },
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        method: "$_id",
+        count: 1
+      }
+    }
+  ]);
 };
 
 /**
  * Top performing cities.
  */
 const getTopCities = async () => {
-  return await Order.aggregate([
-    { $match: { status: { $ne: "cancelled" } } },
+  return await AmazonOrder.aggregate([
     {
       $group: {
-        _id: "$shippingAddress.city",
+        _id: "$City",
         orderCount: { $sum: 1 },
-        revenue: { $sum: "$totalPrice" },
+        revenue: { $sum: { $toDouble: "$TotalAmount" } },
       },
     },
     { $sort: { orderCount: -1 } },
@@ -233,9 +230,8 @@ const getTopCities = async () => {
  * Return rate analytics.
  */
 const getReturnsRate = async () => {
-  const total = await Order.countDocuments();
-  // Using status history "returned" or "cancelled" as proxy
-  const returns = await Order.countDocuments({ status: "cancelled" });
+  const total = await AmazonOrder.countDocuments();
+  const returns = await AmazonOrder.countDocuments({ OrderStatus: /^returned$/i });
   return {
     totalOrders: total,
     returnedOrders: returns,
@@ -244,10 +240,12 @@ const getReturnsRate = async () => {
 };
 
 /**
- * Discount usage analytics (Proxy using diff between itemsPrice and totalPrice).
+ * Discount usage analytics.
  */
 const getDiscountUsage = async () => {
-  const discounted = await Order.countDocuments({ $expr: { $lt: ["$totalPrice", "$itemsPrice"] } });
+  const discounted = await AmazonOrder.countDocuments({
+    $expr: { $gt: [{ $toDouble: "$Discount" }, 0] },
+  });
   return {
     totalDiscountedOrders: discounted,
   };
