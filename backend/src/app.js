@@ -52,6 +52,7 @@ const activityRoutes = require("./routes/activityRoutes");
 const errorRoutes = require("./routes/errorRoutes");
 const statsRoutes = require("./routes/statsRoutes");          // Phase 18 — Statistics
 const validateRoutes = require("./routes/validateRoutes");    // Phase 19 — Data Validation
+const amazonOrderRoutes = require("./routes/amazonOrderRoutes"); // Real Dataset — Amazon Orders
 
 // Future routes will be imported here:
 // const productRoutes = require('./routes/productRoutes');
@@ -138,6 +139,7 @@ app.use(`${API_PREFIX}/activity`, activityRoutes);              // Phase 16 — 
 app.use(`${API_PREFIX}/errors`, errorRoutes);                   // Phase 17 — Error Simulation
 app.use(`${API_PREFIX}/stats`, statsRoutes);                    // Phase 18 — Statistics
 app.use(`${API_PREFIX}/validate`, validateRoutes);              // Phase 19 — Data Validation
+app.use(`${API_PREFIX}/amazon-orders`, amazonOrderRoutes);      // Real Dataset — Amazon Orders
 
 // Future routes:
 // app.use(`${API_PREFIX}/products`, productRoutes);
