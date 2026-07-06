@@ -1,29 +1,34 @@
 import axiosClient from '../../../api/axios';
 
 export const fetchDashboardStats = async () => {
-  const [overviewRes, revenueRes, ordersRes] = await Promise.all([
-    axiosClient.get('/dashboard/overview'),
-    axiosClient.get('/dashboard/revenue', { params: { period: 'monthly' } }),
-    axiosClient.get('/dashboard/orders'),
+  const [overviewRes, revenueRes, statusRes] = await Promise.all([
+    axiosClient.get('/amazon-orders/overview'),
+    axiosClient.get('/amazon-orders/revenue/monthly'),
+    axiosClient.get('/amazon-orders/by-status'),
   ]);
 
   const overview = overviewRes.data || overviewRes;
-  const revenue = revenueRes.data || revenueRes;
-  const orders = ordersRes.data || ordersRes;
+  const revenueArr = revenueRes.data || revenueRes;
+  const statusArr  = statusRes.data  || statusRes;
 
-  const revenueData = (revenue || []).map((r) => ({
-    name: r.period,
-    revenue: r.revenue,
-  }));
+  // Build chart-ready revenue data from monthly array
+  const revenueData = Array.isArray(revenueArr)
+    ? revenueArr.map((r) => ({ name: r.period, revenue: r.revenue }))
+    : [];
 
-  const categoryData = (orders.byStatus || []).map((s) => ({
-    name: s.status.charAt(0).toUpperCase() + s.status.slice(1),
-    value: s.count,
-  }));
+  // Build donut chart data from status breakdown
+  const categoryData = Array.isArray(statusArr)
+    ? statusArr.map((s) => ({
+        name: s.status
+          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+          : 'Unknown',
+        value: s.count,
+      }))
+    : [];
 
-  const totalOrders = overview.orders?.total || 0;
-  const totalRevenue = overview.revenue?.total || 0;
-  const pendingOrders = overview.orders?.pending || 0;
+  const totalOrders    = overview.orders?.total     || 0;
+  const totalRevenue   = overview.revenue?.total    || 0;
+  const pendingOrders  = overview.orders?.pending   || 0;
   const deliveredOrders = overview.orders?.delivered || 0;
 
   return {
