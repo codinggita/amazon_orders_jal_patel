@@ -10,8 +10,8 @@ import {
   Package,
   Loader2,
   AlertCircle,
-  ShieldAlert,
-  RefreshCw
+  RefreshCw,
+  Tag
 } from 'lucide-react';
 
 const OrderDetails = memo(() => {
@@ -42,17 +42,20 @@ const OrderDetails = memo(() => {
   }, [id]);
 
   const getStatusBadge = (status) => {
+    if (!status) return null;
     const styles = {
       delivered: 'bg-emerald-950/40 border-emerald-500/20 text-emerald-400',
       pending: 'bg-amber-950/40 border-amber-500/20 text-amber-400',
       processing: 'bg-blue-950/40 border-blue-500/20 text-blue-400',
       shipped: 'bg-purple-950/40 border-purple-500/20 text-purple-400',
       cancelled: 'bg-red-950/40 border-red-500/20 text-red-400',
+      returned: 'bg-orange-950/40 border-orange-500/20 text-orange-400',
     };
-    const style = styles[status] || 'bg-slate-900 border-slate-700 text-slate-400';
+    const normalized = String(status).toLowerCase();
+    const style = styles[normalized] || 'bg-slate-900 border-slate-700 text-slate-400';
     return (
       <span className={`px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${style}`}>
-        {status}
+        {normalized}
       </span>
     );
   };
@@ -98,11 +101,11 @@ const OrderDetails = memo(() => {
         </button>
         <div>
           <h2 className="text-2xl font-extrabold text-slate-100 tracking-tight flex items-center gap-3">
-            Order <span className="font-mono text-amazon-orange text-xl">#{order._id}</span>
+            Order <span className="font-mono text-amazon-orange text-xl">#{order.OrderID || order._id}</span>
           </h2>
-          <p className="text-xs text-slate-400 font-medium mt-1">Placed on {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</p>
+          <p className="text-xs text-slate-400 font-medium mt-1">Placed on {order.OrderDate || 'Unknown Date'}</p>
         </div>
-        <div className="ml-auto">{getStatusBadge(order.status)}</div>
+        <div className="ml-auto">{getStatusBadge(order.OrderStatus)}</div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -110,36 +113,31 @@ const OrderDetails = memo(() => {
           <div className="glass-card rounded-2xl border border-slate-800 p-6 shadow-xl">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-6 flex items-center gap-2">
               <Package className="h-4 w-4 text-amazon-orange" />
-              Manifest (Line Items)
+              Item Details
             </h3>
-            <div className="space-y-4">
-              {order.orderItems?.length > 0 ? (
-                order.orderItems.map((item, idx) => (
-                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800/50">
-                    <div className="h-16 w-16 bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-700">
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="h-full w-full object-cover opacity-80" />
-                      ) : (
-                        <ShoppingBag className="h-6 w-6 text-slate-600" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-slate-200">{item.name || 'Unknown Item'}</h4>
-                      <p className="text-xs text-slate-500 mt-1">ID: <span className="font-mono">{item.product || 'N/A'}</span></p>
-                    </div>
-                    <div className="text-right sm:ml-4">
-                      <p className="text-sm font-black text-slate-200">${(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                      <p className="text-xs font-semibold text-slate-500 uppercase mt-1">Qty: {item.quantity || 0}</p>
-                    </div>
-                    <div className="hidden sm:block text-right w-24">
-                      <p className="text-sm font-black text-amazon-orange">${((item.price || 0) * (item.quantity || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-slate-500 italic">No items in this order.</p>
-              )}
+            
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800/50">
+              <div className="h-20 w-20 bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-700">
+                <ShoppingBag className="h-8 w-8 text-slate-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-slate-200 text-lg">{order.ProductName || 'Unknown Item'}</h4>
+                <div className="flex gap-4 mt-2">
+                  <p className="text-xs text-slate-400 flex items-center gap-1">
+                    <Tag className="h-3 w-3" /> {order.Category || 'N/A'}
+                  </p>
+                  <p className="text-xs text-slate-400">Brand: <span className="font-semibold text-slate-300">{order.Brand || 'N/A'}</span></p>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">Product ID: <span className="font-mono">{order.ProductID || 'N/A'}</span></p>
+              </div>
+              
+              <div className="text-right sm:ml-4 flex flex-col justify-center">
+                <p className="text-slate-400 text-sm">Unit Price</p>
+                <p className="text-base font-black text-slate-200">${Number(order.UnitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase mt-1">Qty: {order.Quantity || 1}</p>
+              </div>
             </div>
+            
           </div>
         </div>
 
@@ -151,27 +149,39 @@ const OrderDetails = memo(() => {
               Financial Breakdown
             </h3>
             <div className="space-y-3 text-sm relative z-10">
+              
               <div className="flex justify-between text-slate-400">
-                <span>Items Subtotal</span>
-                <span className="font-semibold text-slate-300">${(order.itemsPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span>Subtotal</span>
+                <span className="font-semibold text-slate-300">
+                  ${(Number(order.UnitPrice || 0) * Number(order.Quantity || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
               </div>
+              
+              <div className="flex justify-between text-emerald-400/80">
+                <span>Discount</span>
+                <span className="font-semibold">-${Number(order.Discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              </div>
+
               <div className="flex justify-between text-slate-400">
-                <span>Shipping Fee</span>
-                <span className="font-semibold text-slate-300">${(order.shippingPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span>Shipping Cost</span>
+                <span className="font-semibold text-slate-300">${Number(order.ShippingCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
+              
               <div className="flex justify-between text-slate-400">
-                <span>Estimated Tax</span>
-                <span className="font-semibold text-slate-300">${(order.taxPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span>Tax</span>
+                <span className="font-semibold text-slate-300">${Number(order.Tax || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
-              {order.paymentMethod && (
-                <div className="flex justify-between text-slate-400">
-                  <span>Payment Method</span>
-                  <span className="font-semibold text-slate-300">{order.paymentMethod.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
+              
+              {order.PaymentMethod && (
+                <div className="flex justify-between text-slate-400 mt-2 pt-2 border-t border-slate-800/50">
+                  <span>Method</span>
+                  <span className="font-semibold text-slate-300">{order.PaymentMethod}</span>
                 </div>
               )}
+              
               <div className="border-t border-slate-800 pt-3 mt-3 flex justify-between items-center">
                 <span className="font-bold text-slate-200 uppercase tracking-wider">Gross Total</span>
-                <span className="text-xl font-black text-emerald-400">${(order.totalPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className="text-xl font-black text-emerald-400">${Number(order.TotalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -179,35 +189,39 @@ const OrderDetails = memo(() => {
           <div className="glass-card rounded-2xl border border-slate-800 p-6 shadow-xl">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-blue-400" />
-              Delivery Destination
+              Location Details
             </h3>
             <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/50">
-              {order.shippingAddress ? (
-                <div className="space-y-1 text-sm text-slate-300">
-                  <p className="text-slate-400">{order.shippingAddress.street || order.shippingAddress.address || ''}</p>
-                  <p>{[order.shippingAddress.city, order.shippingAddress.state].filter(Boolean).join(', ')} {order.shippingAddress.postalCode || ''}</p>
-                  <p className="font-semibold text-slate-200">{order.shippingAddress.country || ''}</p>
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500 italic">No delivery address provided.</p>
-              )}
+              <div className="space-y-1 text-sm text-slate-300">
+                <p className="font-semibold text-slate-200 text-lg mb-2">{order.City || 'Unknown City'}</p>
+                <p className="text-slate-400">{order.State || 'Unknown State'}</p>
+                <p className="text-slate-500 uppercase font-semibold text-xs tracking-wider mt-2">{order.Country || 'Unknown Country'}</p>
+              </div>
             </div>
           </div>
 
-          {isUserAdmin && order.user && (
-            <div className="glass-card rounded-2xl border border-slate-800 p-6 shadow-xl">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Customer Identity</h3>
+          <div className="glass-card rounded-2xl border border-slate-800 p-6 shadow-xl">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+              <Package className="h-4 w-4 text-orange-400" />
+              Customer & Seller
+            </h3>
+            <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-amazon-orange/10 border border-amazon-orange/20 flex items-center justify-center text-amazon-orange font-bold">
-                  {order.user.firstName?.[0] || 'U'}
+                  {order.CustomerName?.[0] || 'C'}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-200">{order.user.firstName || ''} {order.user.lastName || ''}</p>
-                  <p className="text-xs text-slate-500">{order.user.email || ''}</p>
+                  <p className="text-sm font-bold text-slate-200">{order.CustomerName || 'Unknown Customer'}</p>
+                  <p className="text-xs text-slate-500 font-mono">ID: {order.CustomerID || 'N/A'}</p>
                 </div>
               </div>
+              <div className="pt-3 border-t border-slate-800">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Fulfillment (Seller)</p>
+                <p className="text-sm font-mono text-slate-300">{order.SellerID || 'Amazon Retail'}</p>
+              </div>
             </div>
-          )}
+          </div>
+          
         </div>
       </div>
     </div>
