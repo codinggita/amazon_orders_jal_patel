@@ -41,6 +41,13 @@ const Analytics = memo(() => {
   const [endDate, setEndDate] = useState(defaultEnd.toISOString().split('T')[0]);
   const [interval, setInterval] = useState('month');
 
+  const formatCompact = (num) => {
+    if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toFixed(2);
+  };
+
   const [salesData, setSalesData] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
@@ -177,8 +184,8 @@ const Analytics = memo(() => {
             <Loader2 className="h-8 w-8 text-amazon-orange animate-spin" />
           </div>
         )}
-        <StatCard label="Gross Revenue" value={`$${totals.grossRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} icon={DollarSign} color="bg-emerald-500" />
-        <StatCard label="Net Revenue" value={`$${totals.netRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} icon={TrendingUp} color="bg-cyan-500" />
+        <StatCard label="Gross Revenue" value={`$${formatCompact(totals.grossRevenue)}`} icon={DollarSign} color="bg-emerald-500" />
+        <StatCard label="Net Revenue" value={`$${formatCompact(totals.netRevenue)}`} icon={TrendingUp} color="bg-cyan-500" />
         <StatCard label="Total Orders" value={totals.totalOrders.toLocaleString()} icon={ShoppingCart} color="bg-amazon-orange" />
         <StatCard label="Items Sold" value={totals.totalItemsSold.toLocaleString()} icon={Package} color="bg-purple-500" />
       </div>

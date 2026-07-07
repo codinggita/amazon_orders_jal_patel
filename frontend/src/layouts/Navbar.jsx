@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import axiosClient from '../api/axios';
 import { 
@@ -13,6 +14,7 @@ import {
 
 const Navbar = ({ isCollapsed, setIsCollapsed }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
@@ -67,7 +69,10 @@ const Navbar = ({ isCollapsed, setIsCollapsed }) => {
       {/* Right control panel */}
       <div className="flex items-center gap-3">
         {/* Notifications Alert */}
-        <button className="p-2 rounded-xl bg-slate-900/65 border border-slate-850 hover:bg-slate-800/75 hover:border-slate-700 text-slate-400 hover:text-slate-200 transition-all relative cursor-pointer">
+        <button 
+          onClick={() => navigate('/notifications')}
+          className="p-2 rounded-xl bg-slate-900/65 border border-slate-850 hover:bg-slate-800/75 hover:border-slate-700 text-slate-400 hover:text-slate-200 transition-all relative cursor-pointer"
+        >
           <Bell className="h-4.5 w-4.5" />
           {hasUnreadNotifications && (
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amazon-orange animate-pulse"></span>

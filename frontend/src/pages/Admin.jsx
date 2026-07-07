@@ -3,7 +3,7 @@ import useAuth from '../hooks/useAuth';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import Skeleton from '../components/Skeleton';
 import adminUserService from '../services/adminUserService';
-import { orderService } from '../services/orderService';
+import { amazonOrderService } from '../services/amazonOrderService';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -28,7 +28,7 @@ const Admin = () => {
       try {
         const [usersRes, ordersRes] = await Promise.allSettled([
           adminUserService.getUsers({ page: 1, limit: 1 }),
-          orderService.getOrders({ page: 1, limit: 1 })
+          amazonOrderService.getOrders({ page: 1, limit: 1 })
         ]);
         setStats({
           totalUsers: usersRes.value?.data?.totalResults || usersRes.value?.totalResults || 0,
