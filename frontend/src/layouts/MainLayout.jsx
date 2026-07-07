@@ -43,7 +43,7 @@ const MainLayout = () => {
         />
 
         {/* Dynamic Page Routes Outlet Container */}
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto animate-fade-in overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 w-full 2xl:max-w-none animate-fade-in overflow-y-auto">
           <Outlet />
         </main>
         
