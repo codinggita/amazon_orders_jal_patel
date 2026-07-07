@@ -64,10 +64,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-mesh flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Visual background ambient circles */}
-      <div className="absolute top-1/4 left-1/4 h-80 w-80 rounded-full bg-amazon-orange/5 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 h-[40vw] w-[40vw] rounded-full bg-amazon-orange/10 blur-[130px] pointer-events-none animate-blob"></div>
+      <div className="absolute bottom-1/4 right-1/4 h-[40vw] w-[40vw] rounded-full bg-amber-500/10 blur-[130px] pointer-events-none animate-blob" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[50vw] w-[50vw] rounded-full bg-blue-500/5 blur-[140px] pointer-events-none animate-blob" style={{ animationDelay: '4s' }}></div>
 
       <div className="w-full max-w-md animate-slide-up z-10">
         {/* Branding header */}
@@ -84,8 +85,9 @@ const Login = () => {
         </div>
 
         {/* Glass Login Form */}
-        <div className="glass-effect rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
-          <h3 className="text-lg font-bold text-slate-200 mb-6">
+        <div className="glass-card rounded-3xl p-8 shadow-2xl relative overflow-hidden border-t-white/10">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+          <h3 className="text-xl font-extrabold text-slate-100 mb-6 drop-shadow-md">
             {isSignUp ? 'Create Account' : 'Sign In'}
           </h3>
 
