@@ -81,8 +81,15 @@ const listOrders = async (query = {}) => {
  * Returns a single order by MongoDB _id.
  */
 const getOrderById = async (id) => {
-  const order = await AmazonOrder.findById(id).lean();
-  return order;
+  // If it's a valid 24-char ObjectId, fetch by _id
+  if (id && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id)) {
+    const order = await AmazonOrder.findById(id).lean();
+    if (order) return order;
+  }
+  
+  // Otherwise, fallback to checking the Amazon custom OrderID string
+  const orderFallback = await AmazonOrder.findOne({ OrderID: id }).lean();
+  return orderFallback;
 };
 
 /**

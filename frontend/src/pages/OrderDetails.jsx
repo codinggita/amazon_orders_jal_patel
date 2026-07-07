@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import { orderService } from '../services/orderService';
+import { amazonOrderService } from '../services/amazonOrderService';
 import {
   ArrowLeft,
   ShoppingBag,
@@ -29,7 +29,7 @@ const OrderDetails = memo(() => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await orderService.getOrderById(id);
+        const response = await amazonOrderService.getOrderById(id);
         const data = response && response.data ? response.data : response;
         setOrder(data);
       } catch (err) {
