@@ -10,8 +10,10 @@ const Login = () => {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   // Determine redirection route (default is /)
   const from = location.state?.from?.pathname || '/';
@@ -34,7 +36,17 @@ const Login = () => {
     setErrorMsg('');
     
     try {
-      await login(email, password);
+      if (isSignUp) {
+        if (!name) {
+          setErrorMsg('Please supply a name for registration.');
+          setIsSubmitting(false);
+          return;
+        }
+        await useAuth().register(name, email, password, 'customer');
+        await login(email, password); // auto login after registration
+      } else {
+        await login(email, password);
+      }
       navigate(from, { replace: true });
     } catch (err) {
       console.error('Authentication request failed:', err);
@@ -74,7 +86,7 @@ const Login = () => {
         {/* Glass Login Form */}
         <div className="glass-effect rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
           <h3 className="text-lg font-bold text-slate-200 mb-6">
-            Sign In
+            {isSignUp ? 'Create Account' : 'Sign In'}
           </h3>
 
           {errorMsg && (
@@ -87,6 +99,24 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {isSignUp && (
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <input 
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full bg-slate-900/80 border border-slate-800 rounded-xl py-3 px-4 text-sm text-slate-200 focus:outline-none focus:border-amazon-orange/70 focus:ring-1 focus:ring-amazon-orange/50 transition-all placeholder-slate-600"
+                    required={isSignUp}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Email Input */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
@@ -132,13 +162,26 @@ const Login = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Verifying Credentials...</span>
+                  <span>{isSignUp ? 'Creating Account...' : 'Verifying Credentials...'}</span>
                 </>
               ) : (
-                <span>Sign In Securely</span>
+                <span>{isSignUp ? 'Sign Up Securely' : 'Sign In Securely'}</span>
               )}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setErrorMsg('');
+              }}
+              className="text-xs text-slate-400 hover:text-amazon-orange transition-colors cursor-pointer"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+          </div>
 
           {/* Seed credentials utility for developer evaluation */}
           <div className="mt-8 pt-6 border-t border-slate-800/80">

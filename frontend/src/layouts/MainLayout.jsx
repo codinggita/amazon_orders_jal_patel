@@ -5,19 +5,38 @@ import Navbar from './Navbar';
 
 const MainLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex overflow-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex overflow-x-hidden">
+      {/* Mobile overlay for sidebar */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-slate-950/80 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
       {/* Dynamic Collapsible Sidebar */}
-      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <Sidebar
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+      />
 
       {/* Main Content Area */}
-      <div 
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300
-          ${isCollapsed ? 'pl-20' : 'pl-64'}`}
+      <div
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 pl-0
+          ${isCollapsed ? 'md:pl-20' : 'md:pl-64'}`}
       >
         {/* Sticky Glass Navbar */}
-        <Navbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        <Navbar
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
+        />
 
         {/* Dynamic Page Routes Outlet Container */}
         <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto animate-fade-in overflow-y-auto">

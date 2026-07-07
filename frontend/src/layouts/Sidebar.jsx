@@ -12,7 +12,7 @@ import {
   PackageCheck
 } from 'lucide-react';
 
-const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) => {
   const { user, logout } = useAuth();
 
   // Navigation Links definition with role constraints
@@ -57,7 +57,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   return (
     <aside 
       className={`fixed top-0 left-0 h-screen glass-effect border-r border-slate-800 transition-all duration-300 z-30 flex flex-col justify-between
-        ${isCollapsed ? 'w-20' : 'w-64'}`}
+        ${isCollapsed ? 'w-20' : 'w-64'}
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}
+      style={{ width: isCollapsed ? 80 : 256 }}
     >
       {/* Header Branding */}
       <div>
@@ -74,14 +77,22 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           </div>
           
           {/* Toggle Button */}
-          {!isCollapsed && (
-            <button 
-              onClick={() => setIsCollapsed(true)}
-              className="p-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
+          <div className="flex items-center gap-2">
+            {!isCollapsed && (
+              <button 
+                onClick={() => setIsCollapsed(true)}
+                className="p-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              className="md:hidden p-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </button>
-          )}
+          </div>
         </div>
 
         {/* Navigation List */}

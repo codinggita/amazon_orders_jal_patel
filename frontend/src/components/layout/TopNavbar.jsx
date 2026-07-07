@@ -4,13 +4,13 @@ import { Input } from '../ui/Input';
 import { useStore } from '../../store/useStore';
 
 export function TopNavbar() {
-  const { toggleSidebar } = useStore();
+  const { toggleMobileSidebar } = useStore();
 
   return (
     <header className="h-16 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-4 sticky top-0 z-10">
       <div className="flex items-center gap-4 flex-1">
         <button 
-          onClick={toggleSidebar}
+          onClick={toggleMobileSidebar}
           className="p-2 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800 md:hidden"
         >
           <Menu className="w-5 h-5" />

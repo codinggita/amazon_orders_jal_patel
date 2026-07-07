@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
+import axiosClient from '../api/axios';
 import { 
   Search, 
   Bell, 
@@ -13,6 +14,22 @@ import {
 const Navbar = ({ isCollapsed, setIsCollapsed }) => {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+
+  useEffect(() => {
+    const fetchUnreadStatus = async () => {
+      try {
+        const res = await axiosClient.get('/notifications');
+        const data = res?.data || res;
+        // Check if there are any unread notifications
+        const hasUnread = Array.isArray(data) && data.some(n => !(n.isRead || n.read));
+        setHasUnreadNotifications(hasUnread);
+      } catch (err) {
+        setHasUnreadNotifications(false);
+      }
+    };
+    fetchUnreadStatus();
+  }, []);
 
   return (
     <header className="sticky top-0 right-0 w-full h-16 glass-effect border-b border-slate-800/80 z-20 px-6 flex items-center justify-between">
@@ -52,7 +69,9 @@ const Navbar = ({ isCollapsed, setIsCollapsed }) => {
         {/* Notifications Alert */}
         <button className="p-2 rounded-xl bg-slate-900/65 border border-slate-850 hover:bg-slate-800/75 hover:border-slate-700 text-slate-400 hover:text-slate-200 transition-all relative cursor-pointer">
           <Bell className="h-4.5 w-4.5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amazon-orange animate-pulse"></span>
+          {hasUnreadNotifications && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amazon-orange animate-pulse"></span>
+          )}
         </button>
 
         {/* Profile Dropdown Container */}

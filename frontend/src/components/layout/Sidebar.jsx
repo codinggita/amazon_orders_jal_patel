@@ -18,6 +18,7 @@ import {
 import { useStore } from '../../store/useStore';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
+import axiosClient from '../../api/axios';
 
 const navGroups = [
   {
@@ -54,15 +55,48 @@ const navGroups = [
 ];
 
 export function Sidebar() {
-  const { isSidebarOpen, toggleSidebar } = useStore();
+  const { isSidebarOpen, isMobileSidebarOpen, toggleSidebar, toggleMobileSidebar, closeMobileSidebar } = useStore();
   const { logout } = useAuth();
+  const [hasNotifications, setHasNotifications] = React.useState(false);
+  const [hasActivityLogs, setHasActivityLogs] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkNotifications = async () => {
+      try {
+        const res = await axiosClient.get('/notifications');
+        const data = res?.data || res;
+        setHasNotifications(Array.isArray(data) && data.length > 0);
+      } catch (err) {
+        setHasNotifications(false);
+      }
+    };
+
+    const checkActivityLogs = async () => {
+      try {
+        const res = await axiosClient.get('/activity/logs', { params: { limit: 1 } });
+        const data = res?.data || res;
+        const logsArray = Array.isArray(data) ? data : (data?.logs || data?.activities || []);
+        setHasActivityLogs(logsArray.length > 0);
+      } catch (err) {
+        setHasActivityLogs(false);
+      }
+    };
+
+    checkNotifications();
+    checkActivityLogs();
+  }, []);
 
   return (
     <motion.aside
       initial={{ width: 260 }}
-      animate={{ width: isSidebarOpen ? 260 : 80 }}
+      animate={{ width: isMobileSidebarOpen ? 260 : isSidebarOpen ? 260 : 80 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="h-screen bg-slate-950 border-r border-slate-800 flex flex-col z-20 relative"
+      className={cn(
+        "fixed inset-y-0 left-0 h-screen bg-slate-950 border-r border-slate-800 flex flex-col z-30 transition-transform duration-300",
+        isMobileSidebarOpen ? 'w-64' : isSidebarOpen ? 'w-64' : 'w-20',
+        "md:static md:translate-x-0",
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      )}
     >
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
         <div className="flex items-center gap-2 overflow-hidden">
@@ -88,25 +122,35 @@ export function Sidebar() {
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto py-4 custom-scrollbar">
-        {navGroups.map((group, index) => (
-          <div key={index} className="mb-6">
-            {isSidebarOpen && (
-              <h3 className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                {group.title}
-              </h3>
-            )}
-            <ul className="space-y-1 px-2">
-              {group.items.map((item) => (
-                <li key={item.title}>
-                  <NavLink
-                    to={item.href}
-                    className={({ isActive }) => cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all group relative",
-                      isActive 
-                        ? "bg-slate-800 text-amazon-orange" 
-                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
-                    )}
-                  >
+        {navGroups.map((group, index) => {
+          const filteredItems = group.items.filter(item => {
+            if (item.title === 'Notifications') return hasNotifications;
+            if (item.title === 'Activity Logs') return hasActivityLogs;
+            return true;
+          });
+          
+          if (filteredItems.length === 0) return null;
+
+          return (
+            <div key={index} className="mb-6">
+              {isSidebarOpen && (
+                <h3 className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  {group.title}
+                </h3>
+              )}
+              <ul className="space-y-1 px-2">
+                {filteredItems.map((item) => (
+                  <li key={item.title}>
+                    <NavLink
+                      to={item.href}
+                      onClick={closeMobileSidebar}
+                      className={({ isActive }) => cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-all group relative",
+                        isActive 
+                          ? "bg-slate-800 text-amazon-orange" 
+                          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                      )}
+                    >
                     {({ isActive }) => (
                       <>
                         <item.icon className={cn("w-5 h-5 shrink-0 transition-colors", isActive ? "text-amazon-orange" : "group-hover:text-slate-100")} />
@@ -124,10 +168,11 @@ export function Sidebar() {
                     )}
                   </NavLink>
                 </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
       <div className="p-4 border-t border-slate-800">
