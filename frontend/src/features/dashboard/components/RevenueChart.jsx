@@ -18,7 +18,7 @@ export function RevenueChart({ data }) {
       </div>
       <div className="flex-1 min-h-[300px] w-full">
         <ResponsiveContainer width="99%" height="100%" minHeight={300}>
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#ff9900" stopOpacity={0.3}/>
@@ -37,11 +37,18 @@ export function RevenueChart({ data }) {
               axisLine={false} 
               tickLine={false} 
               tick={{ fill: '#64748b', fontSize: 12 }} 
-              tickFormatter={(value) => `$${value}`}
+              width={65}
+              domain={['auto', 'auto']}
+              tickFormatter={(value) => {
+                if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+                if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+                return `$${value}`;
+              }}
             />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
+              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)' }}
               itemStyle={{ color: '#ff9900' }}
+              formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
             />
             <Area 
               type="monotone" 

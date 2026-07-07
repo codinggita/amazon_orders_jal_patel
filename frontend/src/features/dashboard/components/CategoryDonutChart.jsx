@@ -19,13 +19,13 @@ export function CategoryDonutChart({ data }) {
       </div>
       <div className="flex-1 min-h-[300px] w-full">
         <ResponsiveContainer width="99%" height="100%" minHeight={300}>
-          <PieChart>
+          <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 20 }}>
             <Pie
               data={data}
               cx="50%"
-              cy="50%"
-              innerRadius={80}
-              outerRadius={110}
+              cy="45%"
+              innerRadius={70}
+              outerRadius={95}
               paddingAngle={5}
               dataKey="value"
               stroke="none"
@@ -35,8 +35,9 @@ export function CategoryDonutChart({ data }) {
               ))}
             </Pie>
             <Tooltip 
-              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
+              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)' }}
               itemStyle={{ color: '#f8fafc' }}
+              formatter={(value) => [Number(value).toLocaleString(), 'Sales']}
             />
             <Legend verticalAlign="bottom" height={36} iconType="circle" />
           </PieChart>

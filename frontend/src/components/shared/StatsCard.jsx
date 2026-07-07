@@ -17,8 +17,9 @@ export function StatsCard({ title, value, trend, icon: Icon, color = 'blue', del
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       transition={{ delay, duration: 0.4 }}
-      className="glass-card rounded-xl p-6 border border-slate-800 flex flex-col justify-between h-32 hover:border-slate-700 transition-colors"
+      className="glass-card rounded-xl p-6 border border-slate-800 flex flex-col justify-between h-32 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all cursor-pointer"
     >
       <div className="flex items-center justify-between">
         <span className="text-slate-400 text-sm font-medium">{title}</span>
