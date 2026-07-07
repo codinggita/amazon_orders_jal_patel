@@ -24,15 +24,16 @@ const Joi = require("joi");
 
 // ── Shared Primitives ─────────────────────────────────────────────────────────
 
-/** MongoDB ObjectId — 24-character hexadecimal string */
-const objectId = Joi.string()
-  .regex(/^[0-9a-fA-F]{24}$/)
-  .message("Invalid ID format. Must be a 24-character hex string.");
+/** MongoDB ObjectId or Amazon OrderID string */
+const orderIdSchema = Joi.string()
+  .trim()
+  .required()
+  .messages({ "any.required": "Order ID is required." });
 
 /** Routes that accept :orderId as a URL param */
 const orderIdParam = {
   params: Joi.object().keys({
-    orderId: objectId.required(),
+    orderId: orderIdSchema,
   }),
 };
 
@@ -60,7 +61,7 @@ const getTracking = orderIdParam;
 // ─────────────────────────────────────────────────────────────────────────────
 const updateStatus = {
   params: Joi.object().keys({
-    orderId: objectId.required(),
+    orderId: orderIdSchema,
   }),
   body: Joi.object().keys({
     status: Joi.string()
@@ -112,7 +113,7 @@ const getReturned = paginationQuery;
 // ─────────────────────────────────────────────────────────────────────────────
 const createLabel = {
   body: Joi.object().keys({
-    orderId: objectId.required().messages({
+    orderId: orderIdSchema.messages({
       "any.required": "orderId is required to create a shipping label.",
     }),
     carrier: Joi.string()
@@ -153,7 +154,7 @@ const getCarriers = {};
 // ─────────────────────────────────────────────────────────────────────────────
 const changeAddress = {
   params: Joi.object().keys({
-    orderId: objectId.required(),
+    orderId: orderIdSchema,
   }),
   body: Joi.object().keys({
     street: Joi.string().trim().min(3).max(200).required().messages({
@@ -191,7 +192,7 @@ const changeAddress = {
 // ─────────────────────────────────────────────────────────────────────────────
 const reschedule = {
   params: Joi.object().keys({
-    orderId: objectId.required(),
+    orderId: orderIdSchema,
   }),
   body: Joi.object().keys({
     scheduledDeliveryDate: Joi.date().iso().required().messages({
