@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import { KeyRound, Mail, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
 
 const Login = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -42,7 +42,7 @@ const Login = () => {
           setIsSubmitting(false);
           return;
         }
-        await useAuth().register(name, email, password, 'customer');
+        await register(name, email, password, 'customer');
         await login(email, password); // auto login after registration
       } else {
         await login(email, password);
