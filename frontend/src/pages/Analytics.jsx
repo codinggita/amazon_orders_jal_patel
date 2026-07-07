@@ -33,9 +33,9 @@ const Analytics = memo(() => {
   const { user } = useAuth();
   const isUserAdmin = user?.role === 'admin';
 
-  const defaultEnd = new Date();
-  const defaultStart = new Date();
-  defaultStart.setFullYear(defaultStart.getFullYear() - 1);
+  // Default to a range that actually contains data in the Amazon Dataset (2022-2024)
+  const defaultEnd = new Date('2024-12-31');
+  const defaultStart = new Date('2022-01-01');
 
   const [startDate, setStartDate] = useState(defaultStart.toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(defaultEnd.toISOString().split('T')[0]);

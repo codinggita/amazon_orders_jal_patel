@@ -5,14 +5,15 @@ const analyticsService = {
     try {
       const endpoint = groupBy === 'year' ? '/amazon-orders/revenue/yearly' : '/amazon-orders/revenue/monthly';
       const response = await axiosClient.get(endpoint);
-      const data = response.data || response;
+      const resPayload = response.data || response;
+      const dataArr = resPayload.data || resPayload;
       
-      const salesData = (Array.isArray(data) ? data : []).map((item) => {
+      const salesData = (Array.isArray(dataArr) ? dataArr : []).map((item) => {
         return {
           period: item.period || '',
           grossSales: item.revenue || 0,
           netRevenue: item.revenue || 0,
-          totalItemsSold: item.ordersCount || 0,
+          totalItemsSold: item.orders || 0,
           grossRevenue: item.revenue || 0,
         };
       });
@@ -28,16 +29,17 @@ const analyticsService = {
     try {
       const endpoint = groupBy === 'year' ? '/amazon-orders/revenue/yearly' : '/amazon-orders/revenue/monthly';
       const response = await axiosClient.get(endpoint);
-      const data = response.data || response;
+      const resPayload = response.data || response;
+      const dataArr = resPayload.data || resPayload;
 
-      const revenueData = (Array.isArray(data) ? data : []).map((item) => {
+      const revenueData = (Array.isArray(dataArr) ? dataArr : []).map((item) => {
         return {
           period: item.period || '',
           netRevenue: item.revenue || 0,
           grossRevenue: item.revenue || 0,
           taxCollected: 0,
           shippingFees: 0,
-          totalOrders: item.ordersCount || 0,
+          totalOrders: item.orders || 0,
         };
       });
 
@@ -61,8 +63,10 @@ const analyticsService = {
   getTopProducts: async () => {
     try {
       const response = await axiosClient.get('/amazon-orders/products');
-      const data = response.data || response;
-      return Array.isArray(data) ? data.map(p => ({
+      const resPayload = response.data || response;
+      const dataArr = resPayload.data || resPayload;
+      
+      return Array.isArray(dataArr) ? dataArr.map(p => ({
         name: p._id,
         quantitySold: p.count,
         revenueGenerated: p.revenue
