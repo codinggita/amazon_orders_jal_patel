@@ -16,15 +16,20 @@ export const fetchDashboardStats = async () => {
     ? revenueArr.map((r) => ({ name: r.period, revenue: r.revenue }))
     : [];
 
-  // Build donut chart data from status breakdown
-  const categoryData = Array.isArray(statusArr)
-    ? statusArr.map((s) => ({
-        name: s.status
-          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
-          : 'Unknown',
-        value: s.count,
-      }))
-    : [];
+  // Build donut chart data from status breakdown, grouping cases like 'Shipped' and 'shipped'
+  const categoryData = [];
+  if (Array.isArray(statusArr)) {
+    const grouped = statusArr.reduce((acc, s) => {
+      const name = s.status
+        ? s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase()
+        : 'Unknown';
+      acc[name] = (acc[name] || 0) + s.count;
+      return acc;
+    }, {});
+    for (const [name, value] of Object.entries(grouped)) {
+      categoryData.push({ name, value });
+    }
+  }
 
   const totalOrders    = overview.orders?.total     || 0;
   const totalRevenue   = overview.revenue?.total    || 0;
@@ -34,7 +39,7 @@ export const fetchDashboardStats = async () => {
   return {
     kpis: {
       totalRevenue: {
-        value: `$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+        value: `$${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         trend: 0,
       },
       totalOrders: {

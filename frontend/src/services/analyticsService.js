@@ -1,19 +1,33 @@
 import axiosClient from '../api/axios';
 
 const analyticsService = {
+  getDateBounds: async () => {
+    try {
+      const response = await axiosClient.get('/analytics/date-bounds');
+      const data = response.data || response;
+      return data || { minDate: '2022-01-01', maxDate: '2024-12-31' };
+    } catch (error) {
+      console.error('Failed to fetch date bounds:', error);
+      return { minDate: '2022-01-01', maxDate: '2024-12-31' };
+    }
+  },
+
   getSalesReport: async (startDate, endDate, groupBy = 'month') => {
     try {
-      const endpoint = groupBy === 'year' ? '/amazon-orders/revenue/yearly' : '/amazon-orders/revenue/monthly';
-      const response = await axiosClient.get(endpoint);
+      const endpoint = groupBy === 'year' ? '/analytics/revenue/yearly' : '/analytics/revenue/monthly';
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const response = await axiosClient.get(endpoint, { params });
       const resPayload = response.data || response;
       const dataArr = resPayload.data || resPayload;
       
       const salesData = (Array.isArray(dataArr) ? dataArr : []).map((item) => {
         return {
-          period: item.period || '',
+          period: item.period || item.month || item.year || '',
           grossSales: item.revenue || 0,
           netRevenue: item.revenue || 0,
-          totalItemsSold: item.orders || 0,
+          totalItemsSold: item.ordersCount || item.orders || 0,
           grossRevenue: item.revenue || 0,
         };
       });
@@ -27,14 +41,17 @@ const analyticsService = {
 
   getRevenueReport: async (startDate, endDate, groupBy = 'month') => {
     try {
-      const endpoint = groupBy === 'year' ? '/amazon-orders/revenue/yearly' : '/amazon-orders/revenue/monthly';
-      const response = await axiosClient.get(endpoint);
+      const endpoint = groupBy === 'year' ? '/analytics/revenue/yearly' : '/analytics/revenue/monthly';
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const response = await axiosClient.get(endpoint, { params });
       const resPayload = response.data || response;
       const dataArr = resPayload.data || resPayload;
 
       const revenueData = (Array.isArray(dataArr) ? dataArr : []).map((item) => {
         return {
-          period: item.period || '',
+          period: item.period || item.month || item.year || '',
           netRevenue: item.revenue || 0,
           grossRevenue: item.revenue || 0,
           taxCollected: 0,
@@ -60,16 +77,19 @@ const analyticsService = {
     }
   },
 
-  getTopProducts: async () => {
+  getTopProducts: async (startDate, endDate) => {
     try {
-      const response = await axiosClient.get('/amazon-orders/products');
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const response = await axiosClient.get('/analytics/products/top-selling', { params });
       const resPayload = response.data || response;
       const dataArr = resPayload.data || resPayload;
       
       return Array.isArray(dataArr) ? dataArr.map(p => ({
-        name: p._id,
-        quantitySold: p.count,
-        revenueGenerated: p.revenue
+        name: p.product || p.productName || p.name || p._id,
+        quantitySold: p.quantitySold || p.count || 0,
+        revenueGenerated: p.revenueGenerated || p.revenue || 0
       })) : [];
     } catch (error) {
       console.error('Failed to fetch top products:', error);

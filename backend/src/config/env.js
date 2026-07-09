@@ -53,7 +53,7 @@ const config = {
 
   // ── CORS ────────────────────────────────────────────────────
   // Parse comma-separated ALLOWED_ORIGINS into an array.
-  ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || "http://localhost:3000")
+  ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || "http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:5175")
     .split(",")
     .map((origin) => origin.trim()),
 };

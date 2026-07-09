@@ -9,13 +9,20 @@ const getTotalRevenue = catchAsync(async (req, res) => {
   sendSuccess(res, 200, "Total revenue retrieved successfully", result);
 });
 
+const getDateBounds = catchAsync(async (req, res) => {
+  const result = await analyticsService.getDateBounds();
+  sendSuccess(res, 200, "Date bounds retrieved successfully", result);
+});
+
 const getMonthlyRevenue = catchAsync(async (req, res) => {
-  const result = await analyticsService.getMonthlyRevenue();
+  const { startDate, endDate } = req.query;
+  const result = await analyticsService.getMonthlyRevenue(startDate, endDate);
   sendSuccess(res, 200, "Monthly revenue retrieved successfully", result);
 });
 
 const getYearlyRevenue = catchAsync(async (req, res) => {
-  const result = await analyticsService.getYearlyRevenue();
+  const { startDate, endDate } = req.query;
+  const result = await analyticsService.getYearlyRevenue(startDate, endDate);
   sendSuccess(res, 200, "Yearly revenue retrieved successfully", result);
 });
 
@@ -45,7 +52,8 @@ const getTopCustomers = catchAsync(async (req, res) => {
 });
 
 const getTopSellingProducts = catchAsync(async (req, res) => {
-  const result = await analyticsService.getTopSellingProducts();
+  const { startDate, endDate } = req.query;
+  const result = await analyticsService.getTopSellingProducts(startDate, endDate);
   sendSuccess(res, 200, "Top selling products retrieved successfully", result);
 });
 
@@ -80,6 +88,7 @@ const getDiscountUsage = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  getDateBounds,
   getTotalRevenue,
   getMonthlyRevenue,
   getYearlyRevenue,

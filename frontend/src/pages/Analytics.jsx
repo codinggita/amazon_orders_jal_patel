@@ -33,13 +33,23 @@ const Analytics = memo(() => {
   const { user } = useAuth();
   const isUserAdmin = user?.role === 'admin';
 
-  // Default to a range that actually contains data in the Amazon Dataset (2022-2024)
-  const defaultEnd = new Date('2024-12-31');
-  const defaultStart = new Date('2022-01-01');
-
-  const [startDate, setStartDate] = useState(defaultStart.toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(defaultEnd.toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [interval, setInterval] = useState('month');
+  const [dateBoundsLoaded, setDateBoundsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isUserAdmin) return;
+    analyticsService.getDateBounds().then(bounds => {
+      setStartDate(bounds.minDate || '2022-01-01');
+      setEndDate(bounds.maxDate || '2024-12-31');
+      setDateBoundsLoaded(true);
+    }).catch(() => {
+      setStartDate('2022-01-01');
+      setEndDate('2024-12-31');
+      setDateBoundsLoaded(true);
+    });
+  }, [isUserAdmin]);
 
   const formatCompact = (num) => {
     if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
@@ -71,7 +81,7 @@ const Analytics = memo(() => {
       const [salesRes, revenueRes, productsRes] = await Promise.all([
         analyticsService.getSalesReport(startDate, endDate, interval),
         analyticsService.getRevenueReport(startDate, endDate, interval),
-        analyticsService.getTopProducts(),
+        analyticsService.getTopProducts(startDate, endDate),
       ]);
 
       const sales = Array.isArray(salesRes) ? salesRes : [];
@@ -103,8 +113,10 @@ const Analytics = memo(() => {
   }, [startDate, endDate, interval, isUserAdmin]);
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [fetchAnalytics]);
+    if (dateBoundsLoaded) {
+      fetchAnalytics();
+    }
+  }, [fetchAnalytics, dateBoundsLoaded]);
 
   if (!isUserAdmin) {
     return (

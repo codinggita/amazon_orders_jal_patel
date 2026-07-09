@@ -104,27 +104,49 @@ const Admin = () => {
       </div>
 
       <div className="glass-card rounded-2xl border border-slate-800 p-6">
-        <h3 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2">
-          <Server className="h-5 w-5 text-amazon-orange" />
-          Platform Modules
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[
-            { name: 'Order Management', status: 'active', icon: Activity },
-            { name: 'User Management', status: 'active', icon: Users },
-            { name: 'Analytics Engine', status: 'active', icon: Activity },
-            { name: 'Shipping Module', status: 'active', icon: Activity },
-            { name: 'Notification Service', status: 'active', icon: Activity },
-            { name: 'Audit Logging', status: 'active', icon: Activity },
-          ].map((mod, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800">
-              <mod.icon className="h-4 w-4 text-amazon-orange" />
-              <span className="text-sm text-slate-200 font-medium flex-1">{mod.name}</span>
-              <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold">
-                <CheckCircle2 className="h-3 w-3" /> {mod.status}
-              </span>
-            </div>
-          ))}
+        <h3 className="text-2xl font-bold text-slate-100 mb-6">Admin Routes</h3>
+        <div className="overflow-x-auto text-slate-300">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-800">
+                <th className="py-3 px-4 font-semibold text-slate-100">Method</th>
+                <th className="py-3 px-4 font-semibold text-slate-100">Endpoint</th>
+                <th className="py-3 px-4 font-semibold text-slate-100">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/50 font-mono text-sm">
+              {[
+                { method: 'GET', url: '/api/v1/admin/users', desc: 'Fetch all users' },
+                { method: 'GET', url: '/api/v1/admin/users/:id', desc: 'Fetch specific user' },
+                { method: 'PATCH', url: '/api/v1/admin/users/:id/ban', desc: 'Ban user' },
+                { method: 'PATCH', url: '/api/v1/admin/users/:id/unban', desc: 'Unban user' },
+                { method: 'PATCH', url: '/api/v1/admin/users/:id/role', desc: 'Change user role' },
+                { method: 'GET', url: '/api/v1/admin/orders', desc: 'Fetch all orders' },
+                { method: 'GET', url: '/api/v1/admin/reports/sales', desc: 'Fetch sales reports' },
+                { method: 'GET', url: '/api/v1/admin/reports/revenue', desc: 'Fetch revenue reports' },
+                { method: 'DELETE', url: '/api/v1/admin/cache/clear', desc: 'Clear application cache', isDanger: true },
+                { method: 'GET', url: '/api/v1/admin/system/health', desc: 'System health monitoring' },
+                { method: 'GET', url: '/api/v1/admin/system/logs', desc: 'Fetch server logs' },
+                { method: 'POST', url: '/api/v1/admin/system/maintenance', desc: 'Enable maintenance mode' },
+                { method: 'GET', url: '/api/v1/admin/backups', desc: 'Fetch backups list' },
+              ].map((route, i) => (
+                <tr key={i} className="hover:bg-slate-800/10 transition-colors">
+                  <td className={`py-3 px-4 font-bold ${
+                    route.method === 'GET' ? 'text-amber-400' :
+                    route.method === 'PATCH' ? 'text-emerald-400' :
+                    route.method === 'POST' ? 'text-blue-400' :
+                    'text-red-400'
+                  }`}>{route.method}</td>
+                  <td className="py-3 px-4">
+                    <span className="bg-slate-900/60 text-slate-300 font-medium px-2 py-1 rounded text-xs border border-slate-700/50">
+                      {route.url}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-300 font-sans text-[15px]">{route.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

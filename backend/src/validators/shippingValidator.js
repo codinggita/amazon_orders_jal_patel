@@ -66,18 +66,22 @@ const updateStatus = {
   body: Joi.object().keys({
     status: Joi.string()
       .valid(
+        "pending",
+        "processing",
+        "shipped",
         "preparing",
         "picked_up",
         "in_transit",
         "out_for_delivery",
         "delivered",
         "exception",
-        "returned"
+        "returned",
+        "cancelled"
       )
       .required()
       .messages({
         "any.only":
-          "Invalid status. Must be one of: preparing, picked_up, in_transit, out_for_delivery, delivered, exception, returned.",
+          "Invalid status. Must be one of: pending, processing, shipped, out_for_delivery, delivered, exception, returned, cancelled.",
         "any.required": "Shipment status is required.",
       }),
     location: Joi.string().trim().max(200).optional().messages({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import axiosClient from '../api/axios';
 import { 
@@ -9,10 +9,16 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  ShieldCheck
+  ShieldCheck,
+  PackageCheck,
+  LayoutDashboard,
+  ShoppingBag,
+  Truck,
+  BarChart3,
+  Layers3
 } from 'lucide-react';
 
-const Navbar = ({ isCollapsed, setIsCollapsed }) => {
+const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -33,27 +39,66 @@ const Navbar = ({ isCollapsed, setIsCollapsed }) => {
     fetchUnreadStatus();
   }, []);
 
+  // Filter items matching user authority level
+  const navigationItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['customer', 'admin', 'vendor'] },
+    { name: 'Orders', path: '/orders', icon: ShoppingBag, roles: ['customer', 'admin', 'vendor'] },
+    { name: 'Shipping Logs', path: '/shipping', icon: Truck, roles: ['customer', 'admin', 'vendor'] },
+    { name: 'Analytics API', path: '/admin/analytics', icon: BarChart3, roles: ['admin'] },
+    { name: 'Bulk Updates', path: '/admin/bulk-operations', icon: Layers3, roles: ['admin'] },
+  ];
+  
+  const filteredNavItems = navigationItems.filter(item => {
+    return !item.roles || item.roles.includes(user?.role);
+  });
+
   return (
     <header className="sticky top-0 right-0 w-full h-16 glass-effect border-b border-slate-800/80 z-20 px-6 flex items-center justify-between">
-      {/* Left items */}
-      <div className="flex items-center gap-4">
-        {/* Toggle Hamburger on mobile or general trigger */}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+      {/* Left items & Navigation */}
+      <div className="flex items-center gap-6">
+        {/* Branding */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amazon-orange to-amber-500 shadow-lg text-slate-950 font-bold">
+            <PackageCheck className="h-5 w-5" />
+          </div>
+          <div className="hidden xl:block">
+            <span className="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-300 text-sm font-sans uppercase">
+              Amazon Orders
+            </span>
+          </div>
+        </div>
 
         {/* Dynamic Greeting */}
-        <div className="hidden sm:block">
-          <h1 className="text-sm font-semibold text-slate-200 leading-none">
-            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-amazon-yellow to-amazon-orange font-bold">{user?.name || 'Agent'}</span>
+        <div className="hidden sm:block mr-4 border-r border-slate-800 pr-6">
+          <h1 className="text-sm font-semibold text-slate-200 leading-none mb-1">
+            Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-amazon-yellow to-amazon-orange font-bold">{user?.name || 'Agent'}</span>
           </h1>
           <span className="text-[10px] text-slate-400 font-medium">
-            Management Panel — Node API Integrated
+            Management Panel
           </span>
         </div>
+
+        {/* Top Navigation Links */}
+        <nav className="flex items-center gap-1 overflow-x-auto scroller-hidden">
+          {filteredNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `
+                  flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all text-xs font-semibold whitespace-nowrap cursor-pointer
+                  ${isActive 
+                    ? 'bg-amazon-orange/15 text-amazon-orange border hover:bg-amazon-orange/25 border-amazon-orange/20 shadow-inner' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 border border-transparent'}
+                `}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Search Bar - Amazon style styling */}

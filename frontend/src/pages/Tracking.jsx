@@ -142,7 +142,7 @@ const Tracking = () => {
             <p className="text-lg font-mono font-bold text-slate-200 mb-3">{trackingNumber || 'Awaiting Dispatch'}</p>
             
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Carrier</p>
-            <p className="text-sm font-bold text-amazon-yellow uppercase">{carrier || 'Pending Assignment'}</p>
+            <p className="text-sm font-bold text-amazon-yellow uppercase">{carrier?.name || (typeof carrier === 'string' ? carrier : 'Pending Assignment')}</p>
           </div>
         </div>
       </div>

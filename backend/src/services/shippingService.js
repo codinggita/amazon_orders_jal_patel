@@ -4,11 +4,18 @@
  */
 "use strict";
 
+const mongoose = require("mongoose");
 const AmazonOrder = require("../models/AmazonOrder");
 const ApiError = require("../utils/ApiError");
 
 const getTrackingByOrder = async (orderId) => {
-  const order = await AmazonOrder.findOne({ OrderID: orderId }).lean() || await AmazonOrder.findById(orderId).lean();
+  let order;
+  if (!order) {
+    order = await AmazonOrder.findOne({ OrderID: orderId }).lean();
+  }
+  if (!order && mongoose.isValidObjectId(orderId)) {
+    order = await AmazonOrder.findById(orderId).lean();
+  }
   if (!order) throw new ApiError("Order not found.", 404);
 
   // Return a mocked tracking structure referencing flat fields
@@ -23,6 +30,20 @@ const getTrackingByOrder = async (orderId) => {
     status: order.OrderStatus?.toLowerCase() || 'pending',
     createdAt: order.OrderDate,
     updatedAt: new Date().toISOString(),
+    trackingEvents: [
+      {
+        status: "processing",
+        location: "Amazon Fulfillment Center",
+        date: order.OrderDate || new Date().toISOString(),
+        description: "Order has been processed and is awaiting dispatch."
+      },
+      {
+        status: order.OrderStatus?.toLowerCase() || 'pending',
+        location: order.City ? `${order.City}, ${order.State}` : "Unknown Location",
+        date: new Date().toISOString(),
+        description: "Latest update from carrier operations."
+      }
+    ]
   };
 };
 

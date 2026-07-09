@@ -35,8 +35,23 @@ const getTotalRevenue = async () => {
 /**
  * Monthly revenue breakdown.
  */
-const getMonthlyRevenue = async () => {
-  return await AmazonOrder.aggregate([
+const buildMatchStage = (startDate, endDate) => {
+  const matchStage = {};
+  if (startDate || endDate) {
+    matchStage.OrderDate = {};
+    if (startDate) matchStage.OrderDate.$gte = startDate;
+    if (endDate) matchStage.OrderDate.$lte = endDate;
+  }
+  return Object.keys(matchStage).length ? { $match: matchStage } : null;
+};
+
+/**
+ * Monthly revenue breakdown.
+ */
+const getMonthlyRevenue = async (startDate, endDate) => {
+  const match = buildMatchStage(startDate, endDate);
+  const pipeline = [
+    ...(match ? [match] : []),
     {
       $group: {
         _id: { $substr: ["$OrderDate", 0, 7] }, // YYYY-MM
@@ -46,14 +61,17 @@ const getMonthlyRevenue = async () => {
     },
     { $sort: { _id: 1 } },
     { $project: { month: "$_id", revenue: { $round: ["$revenue", 2] }, ordersCount: 1, _id: 0 } },
-  ]);
+  ];
+  return await AmazonOrder.aggregate(pipeline);
 };
 
 /**
  * Yearly revenue breakdown.
  */
-const getYearlyRevenue = async () => {
-  return await AmazonOrder.aggregate([
+const getYearlyRevenue = async (startDate, endDate) => {
+  const match = buildMatchStage(startDate, endDate);
+  const pipeline = [
+    ...(match ? [match] : []),
     {
       $group: {
         _id: { $substr: ["$OrderDate", 0, 4] }, // YYYY
@@ -63,7 +81,8 @@ const getYearlyRevenue = async () => {
     },
     { $sort: { _id: 1 } },
     { $project: { year: "$_id", revenue: { $round: ["$revenue", 2] }, ordersCount: 1, _id: 0 } },
-  ]);
+  ];
+  return await AmazonOrder.aggregate(pipeline);
 };
 
 /**
@@ -131,8 +150,10 @@ const getTopCustomers = async () => {
 /**
  * Top selling products.
  */
-const getTopSellingProducts = async () => {
-  return await AmazonOrder.aggregate([
+const getTopSellingProducts = async (startDate, endDate) => {
+  const match = buildMatchStage(startDate, endDate);
+  const pipeline = [
+    ...(match ? [match] : []),
     {
       $group: {
         _id: "$ProductName",
@@ -150,7 +171,8 @@ const getTopSellingProducts = async () => {
         _id: 0,
       },
     },
-  ]);
+  ];
+  return await AmazonOrder.aggregate(pipeline);
 };
 
 /**
@@ -251,7 +273,24 @@ const getDiscountUsage = async () => {
   };
 };
 
+/**
+ * Get earliest and latest order dates.
+ */
+const getDateBounds = async () => {
+  const result = await AmazonOrder.aggregate([
+    {
+      $group: {
+        _id: null,
+        minDate: { $min: "$OrderDate" },
+        maxDate: { $max: "$OrderDate" },
+      }
+    }
+  ]);
+  return result[0] || { minDate: "2022-01-01", maxDate: "2024-12-31" };
+};
+
 module.exports = {
+  getDateBounds,
   getTotalRevenue,
   getMonthlyRevenue,
   getYearlyRevenue,

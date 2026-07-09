@@ -10,7 +10,8 @@ const router = express.Router();
 router.use(protect);
 router.use(restrictTo("admin"));
 
-// Revenue Analytics
+// Revenue & Time Analytics
+router.get("/date-bounds", analyticsController.getDateBounds);
 router.get("/revenue/total", analyticsController.getTotalRevenue);
 router.get("/revenue/monthly", analyticsController.getMonthlyRevenue);
 router.get("/revenue/yearly", analyticsController.getYearlyRevenue);
