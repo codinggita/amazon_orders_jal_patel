@@ -92,10 +92,10 @@ export function Sidebar() {
       animate={{ width: isMobileSidebarOpen ? 260 : isSidebarOpen ? 260 : 80 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className={cn(
-        "fixed inset-y-0 left-0 h-screen bg-slate-950 border-r border-slate-800 flex flex-col z-30 transition-transform duration-300",
-        isMobileSidebarOpen ? 'w-64' : isSidebarOpen ? 'w-64' : 'w-20',
-        "md:static md:translate-x-0",
-        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        "fixed inset-y-0 left-0 h-screen bg-slate-950 border-r border-slate-800 flex flex-col z-30 transition-all duration-300",
+        isMobileSidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full',
+        "md:translate-x-0",
+        isSidebarOpen ? 'md:w-64' : 'md:w-20'
       )}
     >
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">

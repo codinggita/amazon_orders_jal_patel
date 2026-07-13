@@ -214,28 +214,40 @@ const Analytics = memo(() => {
             <Calendar className="h-4 w-4 text-amazon-orange" />
             Gross Sales Over Time
           </h3>
-          <div className="flex-1 flex items-end gap-2 mt-4 relative pt-10">
+          <div className="flex-1 flex flex-col mt-4 pt-10 relative">
             {salesData.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-500 italic">No sales data for this period</div>
             ) : (
-              salesData.slice(-12).map((data, idx) => {
-                const heightPercentage = Math.max((data.grossSales / maxSales) * 100, 2);
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center group relative">
-                    <div className="opacity-0 group-hover:opacity-100 absolute -top-12 bg-slate-900 border border-slate-700 text-slate-200 text-xs px-2 py-1 rounded shadow-xl whitespace-nowrap transition-opacity z-10 pointer-events-none">
-                      ${data.grossSales.toLocaleString()}
-                      <div className="text-[9px] text-slate-400">{data.period}</div>
+              <>
+                {/* Visual Chart Bars */}
+                <div className="flex-1 flex items-end gap-1.5 sm:gap-2 lg:gap-3 relative px-1 w-full">
+                  {salesData.slice(-12).map((data, idx) => {
+                    const heightPercentage = Math.max((data.grossSales / maxSales) * 100, 2);
+                    return (
+                      <div key={idx} className="flex-1 h-full min-w-0 flex flex-col justify-end group relative cursor-pointer">
+                        <div className="opacity-0 group-hover:opacity-100 absolute -top-14 left-1/2 -translate-x-1/2 bg-[#080402] border border-[#3C2012] px-3 py-1.5 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.1)] whitespace-nowrap transition-all duration-300 z-50 pointer-events-none flex flex-col items-center">
+                          <span className="text-[11px] font-black tracking-wide text-[#fbf9f6]">${data.grossSales.toLocaleString()}</span>
+                          <span className="text-[9px] font-semibold text-[#8c776b] uppercase tracking-wider mt-0.5">{data.period}</span>
+                        </div>
+                        <div
+                          className="w-full bg-gradient-to-t from-amber-500 to-amber-200 rounded-t-sm md:rounded-t-lg transition-all duration-300 transform group-hover:brightness-110 shadow-sm"
+                          style={{ height: `${heightPercentage}%`, transformOrigin: 'bottom' }}
+                        ></div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* X-Axis Labels */}
+                <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 px-1 mt-4 border-t border-slate-800/40 pt-4 pb-2 w-full">
+                  {salesData.slice(-12).map((data, idx) => (
+                    <div key={idx} className="flex-1 flex justify-center min-w-0 overflow-visible">
+                      <span className="text-[7.5px] sm:text-[9px] font-extrabold text-slate-500 block truncate sm:-rotate-45 sm:origin-center">
+                        {data.period}
+                      </span>
                     </div>
-                    <div
-                      className="w-full bg-gradient-to-t from-amazon-orange/80 to-amber-400/80 rounded-t-sm transition-all duration-500 group-hover:opacity-80"
-                      style={{ height: `${heightPercentage}%` }}
-                    ></div>
-                    <span className="text-[9px] font-semibold text-slate-500 mt-2 truncate max-w-full block transform -rotate-45 origin-top-left translate-y-1">
-                      {data.period}
-                    </span>
-                  </div>
-                );
-              })
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -245,28 +257,40 @@ const Analytics = memo(() => {
             <TrendingUp className="h-4 w-4 text-emerald-400" />
             Net Revenue Over Time
           </h3>
-          <div className="flex-1 flex items-end gap-2 mt-4 relative pt-10">
+          <div className="flex-1 flex flex-col mt-4 pt-10 relative">
             {revenueData.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-500 italic">No revenue data for this period</div>
             ) : (
-              revenueData.slice(-12).map((data, idx) => {
-                const heightPercentage = Math.max((data.netRevenue / maxRevenue) * 100, 2);
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center group relative">
-                    <div className="opacity-0 group-hover:opacity-100 absolute -top-12 bg-slate-900 border border-slate-700 text-slate-200 text-xs px-2 py-1 rounded shadow-xl whitespace-nowrap transition-opacity z-10 pointer-events-none">
-                      ${data.netRevenue.toLocaleString()}
-                      <div className="text-[9px] text-slate-400">{data.period}</div>
+              <>
+                {/* Visual Chart Bars */}
+                <div className="flex-1 flex items-end gap-1.5 sm:gap-2 lg:gap-3 relative px-1 w-full">
+                  {revenueData.slice(-12).map((data, idx) => {
+                    const heightPercentage = Math.max((data.netRevenue / maxRevenue) * 100, 2);
+                    return (
+                      <div key={idx} className="flex-1 h-full min-w-0 flex flex-col justify-end group relative cursor-pointer">
+                        <div className="opacity-0 group-hover:opacity-100 absolute -top-14 left-1/2 -translate-x-1/2 bg-[#080402] border border-[#3C2012] px-3 py-1.5 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.1)] whitespace-nowrap transition-all duration-300 z-50 pointer-events-none flex flex-col items-center">
+                          <span className="text-[11px] font-black tracking-wide text-[#fbf9f6]">${data.netRevenue.toLocaleString()}</span>
+                          <span className="text-[9px] font-semibold text-[#8c776b] uppercase tracking-wider mt-0.5">{data.period}</span>
+                        </div>
+                        <div
+                          className="w-full bg-gradient-to-t from-emerald-500 to-emerald-200 rounded-t-sm md:rounded-t-lg transition-all duration-300 transform group-hover:brightness-110 shadow-sm"
+                          style={{ height: `${heightPercentage}%`, transformOrigin: 'bottom' }}
+                        ></div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* X-Axis Labels */}
+                <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 px-1 mt-4 border-t border-slate-800/40 pt-4 pb-2 w-full">
+                  {revenueData.slice(-12).map((data, idx) => (
+                    <div key={idx} className="flex-1 flex justify-center min-w-0 overflow-visible">
+                      <span className="text-[7.5px] sm:text-[9px] font-extrabold text-slate-500 block truncate sm:-rotate-45 sm:origin-center">
+                        {data.period}
+                      </span>
                     </div>
-                    <div
-                      className="w-full bg-gradient-to-t from-emerald-500/80 to-teal-400/80 rounded-t-sm transition-all duration-500 group-hover:opacity-80"
-                      style={{ height: `${heightPercentage}%` }}
-                    ></div>
-                    <span className="text-[9px] font-semibold text-slate-500 mt-2 truncate max-w-full block transform -rotate-45 origin-top-left translate-y-1">
-                      {data.period}
-                    </span>
-                  </div>
-                );
-              })
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

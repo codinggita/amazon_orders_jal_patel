@@ -20,16 +20,16 @@ import {
 const StatusBadge = memo(({ status }) => {
   const s = (status || '').toLowerCase();
   const styles = {
-    delivered:  'bg-emerald-950/40 border-emerald-500/20 text-emerald-400',
-    pending:    'bg-amber-950/40 border-amber-500/20 text-amber-400',
-    processing: 'bg-blue-950/40 border-blue-500/20 text-blue-400',
-    shipped:    'bg-purple-950/40 border-purple-500/20 text-purple-400',
-    cancelled:  'bg-red-950/40 border-red-500/20 text-red-400',
-    returned:   'bg-orange-950/40 border-orange-500/20 text-orange-400',
+    delivered:  'bg-emerald-100 border-emerald-300 text-emerald-900',
+    pending:    'bg-amber-100 border-amber-400 text-amber-900',
+    processing: 'bg-blue-100 border-blue-300 text-blue-900',
+    shipped:    'bg-purple-100 border-purple-300 text-purple-900',
+    cancelled:  'bg-red-100 border-red-300 text-red-900',
+    returned:   'bg-orange-100 border-orange-300 text-orange-900',
   };
-  const style = styles[s] || 'bg-slate-900 border-slate-700 text-slate-400';
+  const style = styles[s] || 'bg-slate-200 border-slate-300 text-slate-800';
   return (
-    <span className={`px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${style}`}>
+    <span className={`px-2.5 py-1 rounded-full border text-[10px] font-extrabold uppercase tracking-wider shadow-sm ${style}`}>
       {status || '—'}
     </span>
   );

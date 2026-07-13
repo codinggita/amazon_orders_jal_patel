@@ -208,17 +208,20 @@ const updateUserRole = async (userId, newRole, admin) => {
   }
 
   const oldRole = user.role;
-  user.role = newRole;
-  await user.save();
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { role: newRole },
+    { new: true, runValidators: true }
+  );
 
   // Audit Log
   auditLogger.logAdminAction(admin, "ROLE_CHANGE", "User", userId, {
-    targetUserEmail: user.email,
+    targetUserEmail: updatedUser.email,
     oldRole,
     newRole,
   });
 
-  return user;
+  return updatedUser;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

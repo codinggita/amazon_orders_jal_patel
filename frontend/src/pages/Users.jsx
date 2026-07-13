@@ -171,7 +171,7 @@ const Users = () => {
             className="w-full md:w-48 bg-slate-900/80 border border-slate-800 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-amazon-orange/50 appearance-none cursor-pointer transition-all"
           >
             <option value="">All Roles</option>
-            <option value="user">Standard User</option>
+            <option value="customer">Standard User</option>
             <option value="admin">Administrator</option>
           </select>
         </div>
@@ -220,7 +220,7 @@ const Users = () => {
                           <div>
                             <div className="font-bold text-slate-200 flex items-center gap-2">
                               {u.firstName} {u.lastName}
-                              {isSelf && <span className="px-1.5 py-0.5 rounded bg-blue-900/40 border border-blue-500/30 text-blue-400 text-[9px] uppercase tracking-wider">You</span>}
+                              {isSelf && <span className="px-1.5 py-0.5 rounded bg-blue-100 border border-blue-300 text-blue-900 text-[9px] font-extrabold shadow-sm uppercase tracking-wider">You</span>}
                             </div>
                             <div className="text-[10px] text-slate-500 font-mono mt-0.5">ID: {u._id}</div>
                           </div>
@@ -234,23 +234,23 @@ const Users = () => {
                       </td>
                       <td className="px-6 py-4">
                         {u.role === 'admin' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/40 border border-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 border border-amber-400 text-amber-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
                             <ShieldCheck className="h-3 w-3" />
                             Admin
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200 border border-slate-300 text-slate-800 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
                             User
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         {u.isBanned ? (
-                          <span className="px-2.5 py-1 rounded-full bg-red-950/40 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center w-max gap-1">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 border border-red-300 text-red-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm w-max">
                             <Ban className="h-3 w-3" /> Banned
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider flex items-center w-max gap-1">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm w-max">
                             <CheckCircle2 className="h-3 w-3" /> Active
                           </span>
                         )}
@@ -336,11 +336,11 @@ const Users = () => {
                 </label>
                 <select 
                   required
-                  value={roleModalData.newRole}
+                  value={roleModalData.newRole === 'user' ? 'customer' : roleModalData.newRole}
                   onChange={(e) => setRoleModalData({...roleModalData, newRole: e.target.value})}
                   className="w-full bg-slate-900/80 border border-slate-800 rounded-xl py-3 px-4 text-sm text-slate-200 focus:outline-none focus:border-amazon-orange/70 focus:ring-1 focus:ring-amazon-orange/50 appearance-none"
                 >
-                  <option value="user">Standard User (Customer)</option>
+                  <option value="customer">Standard User (Customer)</option>
                   <option value="admin">Administrator (Full Access)</option>
                 </select>
                 {roleModalData.newRole === 'admin' && roleModalData.user.role !== 'admin' && (

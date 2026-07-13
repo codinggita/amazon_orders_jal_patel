@@ -122,20 +122,20 @@ const Shipping = () => {
   const getStatusBadge = (status) => {
     switch(status) {
       case 'delivered':
-        return <span className="px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">Delivered</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">Delivered</span>;
       case 'pending':
-        return <span className="px-2.5 py-1 rounded-full bg-amber-950/40 border border-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider">Pending</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-amber-100 border border-amber-400 text-amber-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">Pending</span>;
       case 'processing':
-        return <span className="px-2.5 py-1 rounded-full bg-blue-950/40 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider">Processing</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-300 text-blue-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">Processing</span>;
       case 'shipped':
-        return <span className="px-2.5 py-1 rounded-full bg-purple-950/40 border border-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-wider">Shipped</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-purple-100 border border-purple-300 text-purple-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">Shipped</span>;
       case 'out_for_delivery':
-        return <span className="px-2.5 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">Out for Delivery</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-cyan-100 border border-cyan-300 text-cyan-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">Out for Delivery</span>;
       case 'returned':
       case 'exception':
-        return <span className="px-2.5 py-1 rounded-full bg-red-950/40 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">{status}</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-red-100 border border-red-300 text-red-900 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">{status}</span>;
       default:
-        return <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">{status}</span>;
+        return <span className="px-2.5 py-1 rounded-full bg-slate-200 border border-slate-300 text-slate-800 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">{status}</span>;
     }
   };
 
@@ -183,10 +183,10 @@ const Shipping = () => {
       <div className="flex space-x-1 glass-card rounded-2xl p-1.5 border border-slate-800 w-full sm:w-auto overflow-x-auto">
         <button
           onClick={() => handleTabChange('pending')}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all ${
             activeTab === 'pending'
-              ? 'bg-slate-800 text-slate-100 shadow-sm border border-slate-700'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+              ? 'bg-amber-100 text-amber-900 shadow-sm border border-amber-400'
+              : 'text-slate-500 hover:text-amber-900 hover:bg-amber-100/50'
           }`}
         >
           <PackageOpen className="h-4 w-4" />
@@ -194,10 +194,10 @@ const Shipping = () => {
         </button>
         <button
           onClick={() => handleTabChange('delivered')}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all ${
             activeTab === 'delivered'
-              ? 'bg-emerald-950/40 text-emerald-400 shadow-sm border border-emerald-500/30'
-              : 'text-slate-500 hover:text-emerald-400/70 hover:bg-emerald-950/20'
+              ? 'bg-emerald-100 text-emerald-900 shadow-sm border border-emerald-400'
+              : 'text-slate-500 hover:text-emerald-900 hover:bg-emerald-100/50'
           }`}
         >
           <PackageCheck className="h-4 w-4" />

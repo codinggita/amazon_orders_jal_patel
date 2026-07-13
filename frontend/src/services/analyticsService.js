@@ -56,7 +56,7 @@ const analyticsService = {
           grossRevenue: item.revenue || 0,
           taxCollected: 0,
           shippingFees: 0,
-          totalOrders: item.orders || 0,
+          totalOrders: item.ordersCount || item.orders || 0,
         };
       });
 

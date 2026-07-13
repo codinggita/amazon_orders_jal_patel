@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  /* Amazon E-commerce Premium Theme Colors */
-  --color-amazon-dark: #131921;
-  --color-amazon-navy: #232f3e;
-  --color-amazon-orange: #ff9900;
-  --color-amazon-yellow: #febd69;
+  /* Warm White & Dark Brown Premium Theme Colors */
+  --color-amazon-dark: #1F140F;      
+  --color-amazon-navy: #2E1F16;      
+  --color-amazon-orange: #4A2C18;    /* Deep, dark chocolate brown accent */
+  --color-amazon-yellow: #8B5A33;    
   
-  /* Modern Dashboard Gray Scale (Cooler and deeper) */
-  --color-slate-50: #ffffff;
-  --color-slate-100: #f8fafc;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-  --color-slate-950: #040814; /* Much deeper premium black */
+  /* Modern Dashboard Warm Scale (Light background, Dark brown text) */
+  --color-slate-50: #000000;  
+  --color-slate-100: #080402; /* Pitch dark espresso */
+  --color-slate-200: #140A05; /* Headings */
+  --color-slate-300: #1F1009; /* Primary text */
+  --color-slate-400: #2C170D; /* Secondary text */
+  --color-slate-500: #3C2012; /* Subtle text */
+  --color-slate-600: #552D19; /* Inactive elements */
+  --color-slate-700: #d6c9bc; /* Scrollbars, deep borders */
+  --color-slate-800: #e3d9cd; /* Hovers, light borders */
+  --color-slate-900: #f2ebd9; /* Cards, inputs bg - cream */
+  --color-slate-950: #fbf9f6; /* Main body bg - warm white */
 
   /* Custom Animations */
   --animate-spin-slow: spin 3s linear infinite;
@@ -53,7 +53,7 @@
 /* Custom premium global layouts and styling */
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased font-sans selection:bg-amazon-orange/30 selection:text-amazon-orange;
+    @apply bg-slate-950 text-slate-100 antialiased font-sans selection:bg-amazon-orange/20 selection:text-amazon-orange;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
@@ -70,40 +70,40 @@
   }
 }
 
-/* Premium utilities */
+/* Premium utilities - Warm Glass */
 .glass-effect {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(242, 235, 217, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(227, 217, 205, 0.6);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .glass-card {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+  background: linear-gradient(180deg, rgba(251, 249, 246, 0.9) 0%, rgba(242, 235, 217, 0.6) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-top-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(227, 217, 205, 0.8);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(54, 42, 34, 0.08);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 153, 0, 0.2);
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 153, 0, 0.05);
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.7) 100%);
+  border-color: rgba(209, 122, 71, 0.3);
+  box-shadow: 0 12px 40px -10px rgba(54, 42, 34, 0.12), 0 0 20px rgba(209, 122, 71, 0.08);
+  background: linear-gradient(180deg, rgba(251, 249, 246, 0.95) 0%, rgba(242, 235, 217, 0.8) 100%);
 }
 
 .glow-orange {
-  box-shadow: 0 0 20px rgba(255, 153, 0, 0.25), 0 0 40px rgba(255, 153, 0, 0.1);
+  box-shadow: 0 0 20px rgba(209, 122, 71, 0.25), 0 0 40px rgba(209, 122, 71, 0.15);
 }
 
 .bg-mesh {
-  background-color: #040814;
+  background-color: #fbf9f6;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(255, 153, 0, 0.09) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.07) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(209, 122, 71, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(54, 42, 34, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(145, 124, 105, 0.12) 0px, transparent 50%);
   background-attachment: fixed;
 }

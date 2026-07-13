@@ -28,7 +28,7 @@ export function StatsCard({ title, value, trend, icon: Icon, color = 'blue', del
         </div>
       </div>
       <div className="mt-4 flex items-end justify-between">
-        <h3 className="text-2xl font-bold text-slate-100">{value}</h3>
+        <h3 className="text-2xl font-bold text-slate-100 truncate">{value}</h3>
         {trend !== undefined && (
           <div className={cn("flex items-center text-sm font-medium", isPositive ? "text-emerald-500" : "text-rose-500")}>
             {isPositive ? <ArrowUpRight className="w-4 h-4 mr-1" /> : <ArrowDownRight className="w-4 h-4 mr-1" />}
